@@ -4,63 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>导航首页</title>
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 200vh;
-            overflow-x: hidden;
-        }
-
-        .background {
-            background-image: url("static/img/source/ck.jpg");
-            background-size: cover;
-            background-position: 50% 50%;
-            height: 200vh;
-            font: 900 39rem '';
-            line-height: 130vh;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            position: relative;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        .background::before {
-            content: '';
-            background-size: cover;
-            background-image: inherit;
-            background-position: 50% 50%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            z-index: -99;
-        }
-
-        h1 {
-            position: absolute;
-            text-align: center;
-            width: 100%;
-            letter-spacing: 10px;
-            color: #fff;
-        }
-
-        h2 {
-            position: absolute;
-            letter-spacing: 2px;
-            top: 120vh;
-            width: 60%;
-            color: #fff;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 30px;
-            background-color: rgba(0, 0, 0, .3);
-        }
-    </style>
+    <link rel="stylesheet" href="./static/css/style_template.css?v=1.0.1">
 </head>
 <body>
     <div class="background"><span>城口县</span></div>
@@ -70,7 +18,6 @@
         <hr>
         Chengkou County has witnessed continuous enhancement in its comprehensive economic strength, comprehensive strengthening of its ecological civilization construction, flourishing cultural undertakings, and increasingly stable and harmonious society. The county is committed to developing into "three counties, one city, and one hub." These include a model county for ecological priority and green development, a model county for integrated development of agriculture, culture, and tourism, a model county for effectively connecting the consolidation and expansion of poverty alleviation achievements with rural revitalization, a Dabashan ecological health and wellness city, and a comprehensive transportation hub for neighboring counties in Chongqing, Sichuan, and Shaanxi.
     </h2>
-
     <script>
         const background = document.querySelector(".background")
 
