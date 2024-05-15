@@ -11,8 +11,8 @@ body {
     background-size: cover;
     background-position: 50% 50%;
     height: 200vh;
-    font: 900 22rem '';
-    line-height: 130vh;
+    font: 900 22vw '';
+    line-height: 57vw;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     position: relative;
@@ -44,12 +44,13 @@ h1 {
 h2 {
     position: absolute;
     letter-spacing: 2px;
-    top: 100vh;
+    font-size: 1.3vw;
+    top: 45vw;
     width: 60%;
     color: #fff;
     left: 50%;
     transform: translateX(-50%);
-    padding: 30px;
+    padding: 2vw;
     background-color: rgba(0, 0, 0, .3);
 }
 .phone {
