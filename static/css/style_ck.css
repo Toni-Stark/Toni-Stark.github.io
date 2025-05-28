@@ -7,7 +7,7 @@ body {
 }
 
 .background {
-    background-image: url("../img/source/mountain range.jpg");
+    /*background-image: url("../img/source/mountain range.jpg");*/
     background-size: cover;
     background-position: 50% 50%;
     height: 200vh;
@@ -33,14 +33,6 @@ body {
     z-index: -99;
 }
 
-h1 {
-    position: absolute;
-    text-align: center;
-    width: 100%;
-    letter-spacing: 10px;
-    color: #fff;
-}
-
 h2 {
     position: absolute;
     letter-spacing: 2px;
@@ -51,7 +43,7 @@ h2 {
     left: 50%;
     transform: translateX(-50%);
     padding: 2vw;
-    background-color: rgba(0, 0, 0, .3);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 .phone {
     display: none;

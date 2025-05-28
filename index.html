@@ -7,7 +7,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>导航首页</title>
+    <title>城口文旅</title>
+    <link rel="icon" href="./static/img/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="./static/css/style_ck.css?v=1.0.2">
     <link rel="stylesheet" media="screen and (max-width: 400px)" href="./static/css/style_ck_phone.css?v=1.0.2">
 </head>
@@ -34,6 +35,12 @@
                 background.style.backgroundPosition = ''
             }
         })
+        let list = ["static/img/source/bg1.jpg", "static/img/source/bg2.jpg", "static/img/source/bg3.jpg"];
+        let num = Math.floor(Math.random() * list.length);
+        window.onload = () => {
+            let dom1 = document.querySelector(".background");
+            dom1.style.backgroundImage = `url(${list[num]})`;
+        }
     </script>
 </body>
 </html>
