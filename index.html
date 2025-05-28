@@ -7,16 +7,21 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>导航首页</title>
-    <link rel="stylesheet" href="./static/css/style_template.css?v=1.0.1">
+    <title>城口文旅</title>
+    <link rel="icon" href="./static/img/logo/favicon.png" type="image/png">
+    <link rel="stylesheet" href="./static/css/style_ck.css?v=1.0.2">
+    <link rel="stylesheet" media="screen and (max-width: 400px)" href="./static/css/style_ck_phone.css?v=1.0.2">
 </head>
 <body>
     <div class="background"><span>城口县</span></div>
-    <h2>
+    <h2 class="pc">
         Chengkou County is characterized by a north subtropical mountainous climate, featuring mild temperatures, abundant rainfall, and distinct seasons. The county boasts a wealth of agricultural specialties and traditional Chinese medicinal resources, including raw lacquer, tea, walnuts, and chestnuts. Furthermore, Chengkou County holds the designations of a national e-commerce demonstration county for rural areas, a national health county, a sub-county in the revolutionary cultural relics protection and utilization zone, and a national key county for rural revitalization.
         <br>
         <hr>
-        Chengkou County has witnessed continuous enhancement in its comprehensive economic strength, comprehensive strengthening of its ecological civilization construction, flourishing cultural undertakings, and increasingly stable and harmonious society. The county is committed to developing into "three counties, one city, and one hub." These include a model county for ecological priority and green development, a model county for integrated development of agriculture, culture, and tourism, a model county for effectively connecting the consolidation and expansion of poverty alleviation achievements with rural revitalization, a Dabashan ecological health and wellness city, and a comprehensive transportation hub for neighboring counties in Chongqing, Sichuan, and Shaanxi.
+        城口县属北亚热带山地气候，气候温和，雨量充沛，四季分明。该县拥有丰富的农业特产和中药材资源，包括生漆、茶叶、核桃和栗子。城口县是全国电子商务农村示范县、国家卫生县、革命文物保护利用区副县、全国乡村振兴重点县。
+    </h2>
+    <h2 class="phone">
+        城口县属北亚热带山地气候，气候温和，雨量充沛，四季分明。该县拥有丰富的农业特产和中药材资源，包括生漆、茶叶、核桃和栗子。城口县是全国电子商务农村示范县、国家卫生县、革命文物保护利用区副县、全国乡村振兴重点县。
     </h2>
     <script>
         const background = document.querySelector(".background")
@@ -30,6 +35,12 @@
                 background.style.backgroundPosition = ''
             }
         })
+        let list = ["static/img/source/bg1.jpg", "static/img/source/bg2.jpg", "static/img/source/bg3.jpg"];
+        let num = Math.floor(Math.random() * list.length);
+        window.onload = () => {
+            let dom1 = document.querySelector(".background");
+            dom1.style.backgroundImage = `url(${list[num]})`;
+        }
     </script>
 </body>
 </html>

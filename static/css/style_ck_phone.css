@@ -1,0 +1,17 @@
+.background {
+    font: 900 7rem '';
+    line-height: 150vh;
+}
+
+h2 {
+    top: 90vh;
+    width: 75%;
+    padding: 10px;
+    font-size: 15px;
+}
+.phone {
+    display: unset;
+}
+.pc {
+    display: none;
+}
