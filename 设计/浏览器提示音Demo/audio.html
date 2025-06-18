@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>消息通知示例</title>
+    <style>
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<button onclick="showMessage('您有新消息！')">测试消息通知</button>
+<div id="messageBox"></div>
+
+<script>
+    // 播放提示音
+    let list = [];
+
+    function playSound({text}) {
+        const audio = new Audio("http://icp_p_121_1c30.ldcvh.china-yun.net/y2181.mp3");
+        audio.play().then(() => {
+            console.log("播放完成");
+            const messageBox = document.getElementById("messageBox");
+            messageBox.innerHTML = `<div class="notification">${text}</div>`;
+
+            setTimeout(() => {
+                messageBox.innerHTML = "";
+            }, 3000);
+
+            // 浏览器通知（可选）
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("新消息", { body: text });
+            }
+        }).catch(e => {
+            console.log(e,"自动播放被阻止");
+            if(text){
+                list.push({text});
+            }
+        });
+    }
+
+    // 显示消息弹窗
+    function showMessage(text) {
+        playSound({
+            text: text
+        });
+    }
+
+    // 请求通知权限（可选）
+    if ("Notification" in window && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+
+    function messageFun(arr, num){
+        if(num >= list.length){
+            list = [];
+            return;
+        }
+        playSound(arr[num]);
+        messageFun(arr, num+1);
+    }
+
+    // 用户点击页面时记录交互
+    document.addEventListener("click", () => {
+        if(list.length>0){
+            messageFun(list, 0);
+        }
+    }, { once: true });
+
+    showMessage('进入就播放新消息！')
+</script>
+</body>
+</html>

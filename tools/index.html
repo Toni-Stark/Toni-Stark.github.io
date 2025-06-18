@@ -1,0 +1,107 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>精确尺寸 Canvas</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            #outputCanvas {
+                max-width: 1000px;
+                width: auto;
+                height: auto;
+                border: 1px solid #ddd;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .img_view {
+                display: inline-block;
+                background: #f2f2f2;
+                padding: 0;
+                width: 40%;
+                position: relative;
+            }
+            .img_view img {
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="img_view">
+        <img class="img" src="竖屏.png" alt="" >
+        <canvas id="outputCanvas"></canvas>
+    </div>
+
+    <script>
+        const points = [
+            {"box": [[135,50], [245,50], [245,90], [135,90]], text: '55'},
+            {"box": [[125,350],[225,350],[225,480],[125,480]], text: '中文'},
+            {"box": [[82,555],[355,555],[355,620],[82,620]], text: 'En'},
+        ];
+        const init = function (){
+            const imageElement = document.querySelector('.img_view>img');
+            imageElement.onload = async () => {
+
+                await renderCanvas(imageElement)
+            };
+
+            const canvas = document.getElementById('outputCanvas');
+            const ctx = canvas.getContext('2d');
+
+            async function renderCanvas(img) {
+                const maxWidth = 1000;
+                const scale = await Math.min(maxWidth / img.width, 1);
+                canvas.width = await img.width * scale;
+                canvas.height = await img.height * scale;
+
+                // 设置canvas透明度
+                ctx.globalAlpha = 1;
+                await ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                await ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                await drawBoxes(scale);
+
+                await setTimeout(async ()=>{
+                    await getBase64(canvas)
+                }, 1000)
+            }
+            async function getBase64(canvas){
+                const jpegBase64 = await canvas.toDataURL('image/jpeg', 0.8);
+
+                await console.log(jpegBase64);
+            }
+
+            // 划线
+            function drawBoxes(scale) {
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+
+                points.forEach(point => {
+                    const box = point.box;
+                    ctx.beginPath();
+                    ctx.moveTo(box[0][0] * scale, box[0][1] * scale);
+                    for (let i = 1; i < box.length; i++) {
+                        ctx.lineTo(box[i][0] * scale, box[i][1] * scale);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    // 添加文字注释
+                    console.log(point.text);
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = 'rgba(0,0,0,1)';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(point.text || '未命名', point.box[3][0]+10 , point.box[2][1]+5);
+                });
+            }
+        }
+        init()
+    </script>
+    </body>
+    </html>
