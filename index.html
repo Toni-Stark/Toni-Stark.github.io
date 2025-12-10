@@ -7,11 +7,8 @@
     <!-- 引入外部资源 -->
     <link rel="icon" href="./static/img/logo/favicon.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="static/plugins/jquery/jquery-3.2.1.min.js"></script>
-    <script src="static/plugins/echart/echarts.min.js"></script>
+    <link href="./static/plugins/font-awesome/font-awesome.min.css" rel="stylesheet">
 
-    <script src="static/js/index.js"></script>
 
     <!-- 配置Tailwind自定义主题 -->
     <script>
@@ -61,16 +58,16 @@
         /* 地图容器样式 */
         #china-map-container {
             height: 500px;
+            width: 100%;
             background-color: #f0f9ff;
             position: relative;
             overflow: hidden;
             border-radius: 0.75rem;
+            min-width: 300px;
         }
-        /* 平滑滚动 */
         html {
             scroll-behavior: smooth;
         }
-        /* 加载动画 */
         .loader {
             border-top-color: #3B82F6;
             animation: spinner 0.8s linear infinite;
@@ -252,8 +249,7 @@
             </div>
 
             <!-- 交互式地图 -->
-            <div id="china-map-container" class="china-map shadow-lg">
-            </div>
+            <div class="china-map shadow-lg" id="china-map-container"></div>
         </div>
 
         <!-- 旅游动态 -->
@@ -299,10 +295,10 @@
                     <div class="md:flex flex-row-reverse">
                         <div class="md:w-1/2">
                             <div class="grid grid-cols-2 gap-1 h-full">
-                                <img src="https://picsum.photos/id/1039/400/400" alt="成都美食" class="w-full h-full object-cover">
-                                <img src="https://picsum.photos/id/1080/400/400" alt="成都风景" class="w-full h-full object-cover">
-                                <img src="https://picsum.photos/id/292/400/400" alt="成都文化" class="w-full h-full object-cover">
-                                <img src="https://picsum.photos/id/431/400/400" alt="成都熊猫" class="w-full h-full object-cover">
+                                <img src="./static/img/source/1039-400x400.jpg" alt="成都美食" class="w-full h-full object-cover">
+                                <img src="./static/img/source/1080-400x400.jpg" alt="成都风景" class="w-full h-full object-cover">
+                                <img src="./static/img/source/292-400x400.jpg" alt="成都文化" class="w-full h-full object-cover">
+                                <img src="./static/img/source/431-400x400.jpg" alt="成都熊猫" class="w-full h-full object-cover">
                             </div>
                             <div class="absolute top-4 right-4 bg-secondary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
                                 图片动态
@@ -394,7 +390,9 @@
         </div>
     </div>
 </footer>
-
+<script src="static/plugins/jquery/jquery-3.2.1.min.js"></script>
+<script src="static/plugins/echart/echarts.min.js"></script>
+<!--<script src="static/plugins/echart/echarts-gl.min.js"></script>-->
 <!-- JavaScript -->
 <script>
     // 导航栏滚动效果
@@ -494,5 +492,7 @@
         });
     });
 </script>
+<!-- Echarts -->
+<script src="static/js/index.js"></script>
 </body>
 </html>
