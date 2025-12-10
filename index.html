@@ -1,46 +1,498 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <title>城口文旅</title>
+    <title>我的GitHub博客 - 生活记录与旅行分享</title>
+    <!-- 引入外部资源 -->
     <link rel="icon" href="./static/img/logo/favicon.png" type="image/png">
-    <link rel="stylesheet" href="./static/css/style_ck.css?v=1.0.2">
-    <link rel="stylesheet" media="screen and (max-width: 400px)" href="./static/css/style_ck_phone.css?v=1.0.2">
-</head>
-<body>
-    <div class="background"><span>城口县</span></div>
-    <h2 class="pc">
-        Chengkou County is characterized by a north subtropical mountainous climate, featuring mild temperatures, abundant rainfall, and distinct seasons. The county boasts a wealth of agricultural specialties and traditional Chinese medicinal resources, including raw lacquer, tea, walnuts, and chestnuts. Furthermore, Chengkou County holds the designations of a national e-commerce demonstration county for rural areas, a national health county, a sub-county in the revolutionary cultural relics protection and utilization zone, and a national key county for rural revitalization.
-        <br>
-        <hr>
-        城口县属北亚热带山地气候，气候温和，雨量充沛，四季分明。该县拥有丰富的农业特产和中药材资源，包括生漆、茶叶、核桃和栗子。城口县是全国电子商务农村示范县、国家卫生县、革命文物保护利用区副县、全国乡村振兴重点县。
-    </h2>
-    <h2 class="phone">
-        城口县属北亚热带山地气候，气候温和，雨量充沛，四季分明。该县拥有丰富的农业特产和中药材资源，包括生漆、茶叶、核桃和栗子。城口县是全国电子商务农村示范县、国家卫生县、革命文物保护利用区副县、全国乡村振兴重点县。
-    </h2>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="static/plugins/jquery/jquery-3.2.1.min.js"></script>
+    <script src="static/plugins/echart/echarts.min.js"></script>
+
+    <script src="static/js/index.js"></script>
+
+    <!-- 配置Tailwind自定义主题 -->
     <script>
-        const background = document.querySelector(".background")
-
-        document.addEventListener('scroll', () => {
-            const scrollY = window.scrollY
-
-            if (scrollY !== 0) {
-                background.style.backgroundPosition = `calc(50% + ${scrollY}px) calc(50% + ${scrollY}px)`
-            }else{
-                background.style.backgroundPosition = ''
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#8B5CF6',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
             }
-        })
-        let list = ["static/img/source/bg1.jpg", "static/img/source/bg2.jpg", "static/img/source/bg3.jpg"];
-        let num = Math.floor(Math.random() * list.length);
-        window.onload = () => {
-            let dom1 = document.querySelector(".background");
-            dom1.style.backgroundImage = `url(${list[num]})`;
         }
     </script>
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+            }
+            .map-point {
+                @apply absolute w-4 h-4 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-150 hover:z-10;
+            }
+        }
+    </style>
+    <style>
+        /* 基础动画定义 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 地图容器样式 */
+        #china-map-container {
+            height: 500px;
+            background-color: #f0f9ff;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* 加载动画 */
+        .loader {
+            border-top-color: #3B82F6;
+            animation: spinner 0.8s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+<!-- 导航栏 -->
+<header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="#" class="flex items-center space-x-2">
+            <i class="fa fa-paper-plane text-primary text-2xl"></i>
+            <span class="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Gerric</span>
+        </a>
+
+        <!-- 桌面导航 -->
+        <nav class="hidden md:flex items-center space-x-8">
+            <a href="#hobbies" class="text-gray-700 hover:text-primary transition-colors font-medium">爱好记录</a>
+            <a href="#travel" class="text-gray-700 hover:text-primary transition-colors font-medium">旅游分享</a>
+            <a href="https://github.com" target="_blank" class="flex items-center space-x-1 text-gray-700 hover:text-primary transition-colors">
+                <i class="fa fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </nav>
+
+        <!-- 移动端菜单按钮 -->
+        <button id="menu-toggle" class="md:hidden text-gray-700 focus:outline-none">
+            <i class="fa fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-100 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex flex-col space-y-4">
+            <a href="#hobbies" class="text-gray-700 hover:text-primary transition-colors py-2 border-b border-gray-100">爱好记录</a>
+            <a href="#travel" class="text-gray-700 hover:text-primary transition-colors py-2 border-b border-gray-100">旅游分享</a>
+            <a href="https://github.com" target="_blank" class="flex items-center space-x-1 text-gray-700 hover:text-primary transition-colors py-2">
+                <i class="fa fa-github"></i>
+                <span>GitHub</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 英雄区域 -->
+<section class="pt-32 pb-20 bg-gradient-to-b from-blue-50 to-white">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-dark mb-6 leading-tight text-shadow">
+            记录生活中的<span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">美好瞬间</span>
+        </h1>
+        <p class="text-gray-600 text-[clamp(1rem,2vw,1.25rem)] max-w-2xl mx-auto mb-10">
+            分享游泳等爱好的进步历程，记录旅途中的文化探索与美食体验
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#hobbies" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                查看爱好记录
+            </a>
+            <a href="#travel" class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-3 px-8 rounded-full transition-all shadow-md hover:shadow-lg">
+                探索旅游分享
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 爱好记录板块 -->
+<section id="hobbies" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-dark mb-4">爱好记录</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">追踪我的兴趣爱好成长历程，记录每一次的进步与突破</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- 游泳进度图表 -->
+            <div class="bg-gray-50 rounded-2xl p-6 shadow-md card-hover">
+                <h3 class="text-xl font-semibold mb-4 flex items-center">
+                    <i class="fa fa-tint text-primary mr-2"></i>
+                    游泳技能进步
+                </h3>
+                <div class="h-80">
+                    <canvas id="swimmingChart"></canvas>
+                </div>
+                <div class="mt-6 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">自由泳</span>
+                        <div class="w-2/3 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-primary h-2.5 rounded-full" style="width: 75%"></div>
+                        </div>
+                        <span class="font-medium">75%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">蛙泳</span>
+                        <div class="w-2/3 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-secondary h-2.5 rounded-full" style="width: 90%"></div>
+                        </div>
+                        <span class="font-medium">90%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">仰泳</span>
+                        <div class="w-2/3 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-accent h-2.5 rounded-full" style="width: 60%"></div>
+                        </div>
+                        <span class="font-medium">60%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 爱好动态 -->
+            <div class="bg-gray-50 rounded-2xl p-6 shadow-md card-hover">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fa fa-history text-primary mr-2"></i>
+                    最近动态
+                </h3>
+                <div class="space-y-6">
+                    <div class="flex gap-4 fade-in">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fa fa-tint text-primary text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">自由泳突破50米</h4>
+                            <p class="text-gray-600 text-sm mt-1">今天在泳池成功连续游完50米自由泳，比上周快了3秒，换气节奏更加稳定了！</p>
+                            <p class="text-gray-400 text-xs mt-2">2025年6月15日</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 fade-in" style="animation-delay: 0.1s">
+                        <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fa fa-book text-secondary text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">阅读计划完成</h4>
+                            <p class="text-gray-600 text-sm mt-1">完成了《游泳技巧大全》的阅读，学到了很多关于身体姿势和划水效率的知识。</p>
+                            <p class="text-gray-400 text-xs mt-2">2025年6月8日</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 fade-in" style="animation-delay: 0.2s">
+                        <div class="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fa fa-trophy text-accent text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">第一次参加游泳比赛</h4>
+                            <p class="text-gray-600 text-sm mt-1">虽然没有获奖，但积累了宝贵的比赛经验，看到了自己和专业选手的差距。</p>
+                            <p class="text-gray-400 text-xs mt-2">2025年5月28日</p>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 py-2 text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors">
+                        查看更多动态 <i class="fa fa-angle-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 旅游分享板块 -->
+<section id="travel" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-dark mb-4">旅游分享</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">探索世界各地的文化特色与美食传统，记录每一段难忘的旅程</p>
+        </div>
+
+        <!-- 地图和颜色选择器 -->
+        <div class="mb-12">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold mb-4 md:mb-0">我的旅行地图</h3>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">地图主题:</span>
+                    <div class="flex space-x-2">
+                        <button class="map-theme-btn w-8 h-8 rounded-full bg-blue-100 border-2 border-primary" data-theme="blue"></button>
+                        <button class="map-theme-btn w-8 h-8 rounded-full bg-green-100" data-theme="green"></button>
+                        <button class="map-theme-btn w-8 h-8 rounded-full bg-purple-100" data-theme="purple"></button>
+                        <button class="map-theme-btn w-8 h-8 rounded-full bg-amber-100" data-theme="amber"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交互式地图 -->
+            <div id="china-map-container" class="china-map shadow-lg">
+            </div>
+        </div>
+
+        <!-- 旅游动态 -->
+        <div class="mb-12">
+            <h3 class="text-xl font-semibold mb-6">旅行动态</h3>
+
+            <div class="space-y-8">
+                <!-- 视频动态 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover">
+                    <div class="md:flex">
+                        <div class="md:w-1/2 relative">
+                            <video class="w-full h-full object-cover" controls poster="https://picsum.photos/id/1036/800/450">
+                                <source src="#" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                            <div class="absolute top-4 left-4 bg-primary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
+                                视频动态
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <h4 class="text-lg font-semibold">北京胡同文化探索</h4>
+                                <span class="text-gray-400 text-sm">2025年4月18日</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">
+                                漫步在老北京的胡同里，感受传统四合院的建筑魅力，品尝正宗的北京烤鸭和豆汁儿，体验浓厚的京味儿文化。
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-blue-50 text-primary text-xs py-1 px-2 rounded-full">胡同</span>
+                                <span class="bg-blue-50 text-primary text-xs py-1 px-2 rounded-full">四合院</span>
+                                <span class="bg-blue-50 text-primary text-xs py-1 px-2 rounded-full">北京烤鸭</span>
+                                <span class="bg-blue-50 text-primary text-xs py-1 px-2 rounded-full">传统文化</span>
+                            </div>
+                            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+                                阅读完整游记 <i class="fa fa-long-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图片动态 -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover">
+                    <div class="md:flex flex-row-reverse">
+                        <div class="md:w-1/2">
+                            <div class="grid grid-cols-2 gap-1 h-full">
+                                <img src="https://picsum.photos/id/1039/400/400" alt="成都美食" class="w-full h-full object-cover">
+                                <img src="https://picsum.photos/id/1080/400/400" alt="成都风景" class="w-full h-full object-cover">
+                                <img src="https://picsum.photos/id/292/400/400" alt="成都文化" class="w-full h-full object-cover">
+                                <img src="https://picsum.photos/id/431/400/400" alt="成都熊猫" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute top-4 right-4 bg-secondary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
+                                图片动态
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 p-6 relative">
+                            <div class="flex justify-between items-start mb-4">
+                                <h4 class="text-lg font-semibold">成都美食与慢生活</h4>
+                                <span class="text-gray-400 text-sm">2025年3月25日</span>
+                            </div>
+                            <p class="text-gray-600 mb-4">
+                                成都的美食让人欲罢不能！从麻辣火锅到担担面，从夫妻肺片到龙抄手，每一道都让人回味无穷。同时，成都的慢生活节奏也让人身心放松。
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-green-50 text-secondary text-xs py-1 px-2 rounded-full">火锅</span>
+                                <span class="bg-green-50 text-secondary text-xs py-1 px-2 rounded-full">熊猫</span>
+                                <span class="bg-green-50 text-secondary text-xs py-1 px-2 rounded-full">慢生活</span>
+                                <span class="bg-green-50 text-secondary text-xs py-1 px-2 rounded-full">川菜</span>
+                            </div>
+                            <a href="#" class="inline-flex items-center text-secondary font-medium hover:underline">
+                                查看更多照片 <i class="fa fa-images ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 更多动态按钮 -->
+                <div class="text-center">
+                    <button class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 font-medium py-3 px-8 rounded-full transition-all shadow-md hover:shadow-lg">
+                        加载更多动态 <i class="fa fa-refresh ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fa fa-paper-plane text-primary mr-2"></i>
+                    我的博客
+                </h3>
+                <p class="text-gray-400 mb-6">
+                    记录生活点滴，分享旅行见闻，见证个人成长
+                </p>
+                <div class="flex space-x-4">
+                    <a href="https://github.com" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                        <i class="fa fa-github"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                        <i class="fa fa-weibo"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors">
+                        <i class="fa fa-wechat"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+                <ul class="space-y-2">
+                    <li><a href="#hobbies" class="text-gray-400 hover:text-white transition-colors">爱好记录</a></li>
+                    <li><a href="#travel" class="text-gray-400 hover:text-white transition-colors">旅游分享</a></li>
+                    <li><a href="https://github.com" target="_blank" class="text-gray-400 hover:text-white transition-colors">GitHub 主页</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-lg font-semibold mb-4">订阅更新</h4>
+                <p class="text-gray-400 mb-4">
+                    15502354225@163.com
+                </p>
+                <form class="flex">
+                    <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-primary">
+                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-4 rounded-r-lg transition-colors">
+                        <i class="fa fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500">
+            <p>&copy; 2025 我的GitHub博客. 保留所有权利.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript -->
+<script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('py-2', 'shadow-md');
+            navbar.classList.remove('py-3', 'shadow-sm');
+        } else {
+            navbar.classList.add('py-3', 'shadow-sm');
+            navbar.classList.remove('py-2', 'shadow-md');
+        }
+    });
+
+    // 移动端菜单切换
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // 地图主题切换
+    const initMapThemes = () => {
+        const mapContainer = document.getElementById('china-map-container');
+        const themeButtons = document.querySelectorAll('.map-theme-btn');
+        const mapPoints = document.querySelectorAll('.map-point');
+
+        const themes = {
+            blue: {
+                bg: '#f0f9ff',
+                point: '#3B82F6'
+            },
+            green: {
+                bg: '#ecfdf5',
+                point: '#10B981'
+            },
+            purple: {
+                bg: '#faf5ff',
+                point: '#8B5CF6'
+            },
+            amber: {
+                bg: '#fffbeb',
+                point: '#F59E0B'
+            }
+        };
+
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有按钮的激活状态
+                themeButtons.forEach(b => b.classList.remove('border-2', 'border-primary', 'border-secondary', 'border-accent', 'border-amber-500'));
+
+                const theme = btn.getAttribute('data-theme');
+                const themeData = themes[theme];
+
+                // 设置地图背景色
+                mapContainer.style.backgroundColor = themeData.bg;
+
+                // 设置标记点颜色
+                mapPoints.forEach(point => {
+                    point.style.backgroundColor = themeData.point;
+                });
+
+                // 添加当前按钮的激活状态
+                btn.classList.add('border-2');
+                switch(theme) {
+                    case 'blue': btn.classList.add('border-primary'); break;
+                    case 'green': btn.classList.add('border-secondary'); break;
+                    case 'purple': btn.classList.add('border-accent'); break;
+                    case 'amber': btn.classList.add('border-amber-500'); break;
+                }
+            });
+        });
+    };
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        initMapThemes();
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // 关闭移动端菜单
+                document.getElementById('mobile-menu').classList.add('hidden');
+
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
