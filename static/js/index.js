@@ -137,40 +137,40 @@ function getChinaMapOption() {
           show: true
         },
         data: [
-          { name: '北京市', value: 1000 },
-          { name: '天津市', value: 800 },
-          { name: '河北省', value: 700 },
-          { name: '山西省', value: 600 },
-          { name: '内蒙古自治区', value: 500 },
-          { name: '辽宁省', value: 750 },
-          { name: '吉林省', value: 650 },
-          { name: '黑龙江省', value: 600 },
-          { name: '上海市', value: 950 },
-          { name: '江苏省', value: 850 },
-          { name: '浙江省', value: 820 },
-          { name: '安徽省', value: 620 },
-          { name: '福建省', value: 710 },
-          { name: '江西省', value: 580 },
-          { name: '山东省', value: 850 },
-          { name: '河南省', value: 700 },
-          { name: '湖北省', value: 660 },
-          { name: '湖南省', value: 680 },
-          { name: '广东省', value: 900 },
-          { name: '广西壮族自治区', value: 530 },
-          { name: '海南省', value: 470 },
-          { name: '重庆市', value: 750 },
-          { name: '四川省', value: 730 },
-          { name: '贵州省', value: 520 },
-          { name: '云南省', value: 550 },
-          { name: '西藏自治区', value: 300 },
-          { name: '陕西省', value: 610 },
-          { name: '甘肃省', value: 480 },
-          { name: '青海省', value: 350 },
-          { name: '宁夏回族自治区', value: 420 },
-          { name: '新疆维吾尔自治区', value: 400 },
-          { name: '台湾省', value: 690 },
-          { name: '香港特别行政区', value: 880 },
-          { name: '澳门特别行政区', value: 860 }
+          { name: '北京', value: 1000 },
+          { name: '天津', value: 800 },
+          { name: '河北', value: 700 },
+          { name: '山西', value: 600 },
+          { name: '内蒙古', value: 500 },
+          { name: '辽宁', value: 750 },
+          { name: '吉林', value: 650 },
+          { name: '黑龙江', value: 600 },
+          { name: '上海', value: 950 },
+          { name: '江苏', value: 850 },
+          { name: '浙江', value: 820 },
+          { name: '安徽', value: 620 },
+          { name: '福建', value: 710 },
+          { name: '江西', value: 580 },
+          { name: '山东', value: 850 },
+          { name: '河南', value: 700 },
+          { name: '湖北', value: 660 },
+          { name: '湖南', value: 680 },
+          { name: '广东', value: 900 },
+          { name: '广西', value: 530 },
+          { name: '海南', value: 470 },
+          { name: '重庆', value: 750 },
+          { name: '四川', value: 730 },
+          { name: '贵州', value: 520 },
+          { name: '云南', value: 550 },
+          { name: '西藏', value: 300 },
+          { name: '陕西', value: 610 },
+          { name: '甘肃', value: 480 },
+          { name: '青海', value: 350 },
+          { name: '宁夏', value: 420 },
+          { name: '新疆', value: 400 },
+          { name: '台湾', value: 690 },
+          { name: '香港', value: 880 },
+          { name: '澳门', value: 860 }
         ],
         itemStyle: {
           borderColor: '#fff'
@@ -211,27 +211,26 @@ async function switchToProvinceMap(provinceName) {
 
     // 根据省份名称构建JSON文件路径
     // 注意：你需要有各省份的JSON文件
-    const provinceJsonUrl = getProvinceJsonUrl(provinceName);
+    const provinceJson = getProvinceJsonUrl(provinceName);
 
-    console.log('加载省份JSON:', provinceJsonUrl);
+    console.log('加载省份JSON:', provinceJson);
 
     // 尝试加载省份JSON
-    const response = await fetch(provinceJsonUrl);
+    const response = await fetch(provinceJson.url);
 
     if (!response.ok) {
       throw new Error(`无法加载 ${provinceName} 的地图数据`);
     }
 
-    const provinceJson = await response.json();
+    const provinceObj = await response.json();
 
     // 注册省份地图
-    const mapKey = `province_${provinceName}`;
-    echarts.registerMap(mapKey, provinceJson);
+    const mapKey = provinceJson.key;
+    echarts.registerMap(mapKey, provinceObj);
 
     // 更新当前状态
     currentMapName = mapKey;
     currentProvinceName = provinceName;
-
     // 创建省份地图配置
     const option = getProvinceMapOption(mapKey, provinceName);
 
@@ -262,46 +261,48 @@ function getProvinceJsonUrl(provinceName) {
 
   // 省份名称映射到文件名（去掉特殊字符）
   const fileNameMap = {
-    '北京市': 'beijing',
-    '天津市': 'tianjin',
-    '河北省': 'hebei',
-    '山西省': 'shanxi',
-    '内蒙古自治区': 'neimenggu',
-    '辽宁省': 'liaoning',
-    '吉林省': 'jilin',
-    '黑龙江省': 'heilongjiang',
-    '上海市': 'shanghai',
-    '江苏省': 'jiangsu',
-    '浙江省': 'zhejiang',
-    '安徽省': 'anhui',
-    '福建省': 'fujian',
-    '江西省': 'jiangxi',
-    '山东省': 'shandong',
-    '河南省': 'henan',
-    '湖北省': 'hubei',
-    '湖南省': 'hunan',
-    '广东省': 'guangdong',
-    '广西壮族自治区': 'guangxi',
-    '海南省': 'hainan',
-    '重庆市': 'chongqing',
-    '四川省': 'sichuan',
-    '贵州省': 'guizhou',
-    '云南省': 'yunnan',
-    '西藏自治区': 'xizang',
-    '陕西省': 'shanxi1', // 注意：山西和陕西拼音相同
-    '甘肃省': 'gansu',
-    '青海省': 'qinghai',
-    '宁夏回族自治区': 'ningxia',
-    '新疆维吾尔自治区': 'xinjiang',
-    '台湾省': 'taiwan',
-    '香港特别行政区': 'xianggang',
-    '澳门特别行政区': 'aomen'
+    '北京': 'beijing',
+    '天津': 'tianjin',
+    '河北': 'hebei',
+    '山西': 'shanxi',
+    '内蒙古': 'neimenggu',
+    '辽宁': 'liaoning',
+    '吉林': 'jilin',
+    '黑龙江': 'heilongjiang',
+    '上海': 'shanghai',
+    '江苏': 'jiangsu',
+    '浙江': 'zhejiang',
+    '安徽': 'anhui',
+    '福建': 'fujian',
+    '江西': 'jiangxi',
+    '山东': 'shandong',
+    '河南': 'henan',
+    '湖北': 'hubei',
+    '湖南': 'hunan',
+    '广东': 'guangdong',
+    '广西': 'guangxi',
+    '海南': 'hainan',
+    '重庆': 'chongqing',
+    '四川': 'sichuan',
+    '贵州': 'guizhou',
+    '云南': 'yunnan',
+    '西藏': 'xizang',
+    '陕西': 'shanxi1', // 注意：山西和陕西拼音相同
+    '甘肃': 'gansu',
+    '青海': 'qinghai',
+    '宁夏': 'ningxia',
+    '新疆': 'xinjiang',
+    '台湾': 'taiwan',
+    '香港': 'xianggang',
+    '澳门': 'aomen'
   };
-
   const fileName = fileNameMap[provinceName] || provinceName.toLowerCase().replace(/[省市自治区特别行政区]/g, '');
 
   // 修改为你的实际JSON文件路径
-  return `https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/provinces/${fileName}.json`;
+  return {
+    url: `https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/provinces/${decodeURIComponent(fileName)}.json`,
+    key: fileName
+  }
 }
 
 // 获取省份地图配置
