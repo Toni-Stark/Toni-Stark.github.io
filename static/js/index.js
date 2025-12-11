@@ -482,7 +482,5 @@ function goBackToChinaMap() {
 
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', async function() {
-  // await initChinaMap();
-  await switchToProvinceMap('内蒙古');
-
+  await initChinaMap();
 });
