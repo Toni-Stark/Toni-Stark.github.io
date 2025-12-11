@@ -206,7 +206,13 @@ async function handleMapClick(params) {
 // 切换到省份地图
 async function switchToProvinceMap(provinceName) {
   try {
+    const container = document.getElementById('china-map-container');
+
     // 显示加载动画
+    myChart = echarts.init(container, null, {
+      renderer: 'canvas',
+      devicePixelRatio: window.devicePixelRatio || 1
+    });
     myChart.showLoading();
 
     // 根据省份名称构建JSON文件路径
@@ -476,5 +482,7 @@ function goBackToChinaMap() {
 
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', async function() {
-  await initChinaMap();
+  // await initChinaMap();
+  await switchToProvinceMap('内蒙古');
+
 });
