@@ -1,158 +1,60 @@
+// 存储当前地图层级和状态
+let myChart = null;
+let currentMapName = 'china';
+let currentProvinceName = '';
+let mapStack = []; // 用于记录地图切换历史
+
 async function initChinaMap() {
   try {
     // 1. 获取中国地图JSON文件
-    const response = await fetch('https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/echart/china.json');
+    const response = await fetch('https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/china.json');
     if (!response.ok) {
       throw new Error('地图数据加载失败');
     }
     const chinaJson = await response.json();
 
-    // 2. 验证JSON结构
-    console.log('地图JSON结构:', {
-      '类型': chinaJson.type || '未知',
-      '特性数量': chinaJson.features ? chinaJson.features.length : 0,
-      '名称': chinaJson.name || '未命名'
-    });
-
-    // 3. 初始化ECharts实例
+    // 2. 初始化ECharts实例
     const container = document.getElementById('china-map-container');
-    const myChart = echarts.init(container, null, {
+    myChart = echarts.init(container, null, {
       renderer: 'canvas',
       devicePixelRatio: window.devicePixelRatio || 1
     });
 
-    // 4. 显示加载动画
+    // 3. 显示加载动画
     myChart.showLoading();
 
-    // 5. 注册地图 - 使用 'china' 作为地图名
+    // 4. 注册全国地图
     echarts.registerMap('china', chinaJson);
 
-    // 6. 创建配置
-    const option = {
-      // 关键：添加背景颜色
-      backgroundColor: '#f0f9ff',
+    // 5. 创建全国地图配置
+    const option = getChinaMapOption();
 
-      title: {
-        text: '中国地图（自定义JSON）',
-        left: 'center',
-        textStyle: {
-          fontSize: 18,
-          color: '#333'
-        }
-      },
+    // 6. 设置选项
+    myChart.setOption(option, true);
 
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}'
-      },
-
-      // 关键：添加视觉映射（根据数据值显示不同颜色）
-      visualMap: {
-        show: true,
-        left: 'left',
-        top: 'bottom',
-        text: ['高', '低'],
-        calculable: true,
-        inRange: {
-          color: ['#e0f3f8', '#0868ac']
-        },
-        textStyle: {
-          color: '#000'
-        }
-      },
-
-      // 关键：使用geo配置，而不是series中的map
-      geo: {
-        map: 'china',  // 这里引用注册的地图名称
-        roam: true,    // 允许缩放和平移
-        zoom: 1,       // 初始缩放级别
-        center: [105, 36], // 地图中心点[经度, 纬度]
-
-        label: {
-          show: true,
-          fontSize: 12,
-          color: 'rgba(0,0,0,0.8)'
-        },
-
-        itemStyle: {
-          areaColor: '#f5f5f5',  // 默认区域颜色
-          borderColor: '#ccc',   // 边界线颜色
-          borderWidth: 1,        // 边界线宽度
-          shadowColor: 'rgba(0, 0, 0, 0.1)',
-          shadowBlur: 10
-        },
-
-        emphasis: {
-          itemStyle: {
-            areaColor: '#409EFF', // 高亮时的颜色
-            borderWidth: 2
-          },
-          label: {
-            color: '#fff',
-            fontSize: 14
-          }
-        }
-      },
-
-      // 系列配置 - 用于显示数据
-      series: [
-        {
-          type: 'map',
-          map: 'china',  // 这里也需要引用注册的地图名称
-          geoIndex: 0,   // 关联到geo配置
-          label: {
-            show: true
-          },
-
-          // 模拟数据
-          data: [
-            { name: '广东省', value: 900 },
-            { name: '河南省', value: 600 },
-            { name: '山东省', value: 800 },
-            { name: '四川省', value: 700 },
-            { name: '江苏省', value: 850 },
-            { name: '河北省', value: 550 },
-            { name: '浙江省', value: 750 },
-            { name: '湖北省', value: 650 }
-            // 可以添加更多省份数据
-          ],
-
-          // 数据项样式
-          itemStyle: {
-            borderColor: '#fff'
-          },
-
-          // 高亮状态
-          emphasis: {
-            itemStyle: {
-              areaColor: '#FF6B6B' // 与geo的高亮颜色不同以示区别
-            }
-          }
-        }
-      ]
-    };
-
-    // 7. 设置选项
-    myChart.setOption(option, true); // true表示不合并旧配置
-
-    // 8. 隐藏加载动画
+    // 7. 隐藏加载动画
     myChart.hideLoading();
 
-    // 9. 响应窗口大小变化
+    // 8. 添加点击事件监听
+    myChart.on('click', handleMapClick);
+
+    // 9. 初始化返回按钮
+    initBackButton();
+
+    // 10. 响应窗口大小变化
     window.addEventListener('resize', function() {
-      myChart.resize();
+      myChart && myChart.resize();
     });
 
-    // 10. 强制调整大小（解决某些浏览器的渲染问题）
+    // 11. 强制调整大小
     setTimeout(() => {
-      myChart.resize();
+      myChart && myChart.resize();
     }, 100);
 
     return myChart;
 
   } catch (error) {
     console.error('地图初始化失败:', error);
-    // 显示错误信息
     document.getElementById('china-map-container').innerHTML =
         `<div style="text-align:center;padding:50px;color:#f56c6c;">
         <h3>地图加载失败</h3>
@@ -161,6 +63,417 @@ async function initChinaMap() {
       </div>`;
   }
 }
+
+// 获取全国地图配置
+function getChinaMapOption() {
+  return {
+    backgroundColor: '#f0f9ff',
+    title: {
+      text: '中国地图',
+      left: 'center',
+      subtext: '点击省份查看详情',
+      subtextStyle: {
+        fontSize: 12,
+        color: '#666'
+      },
+      textStyle: {
+        fontSize: 18,
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        return `${params.name}<br/>点击查看详情`;
+      }
+    },
+    visualMap: {
+      show: true,
+      left: 'left',
+      top: 'bottom',
+      text: ['高', '低'],
+      calculable: true,
+      inRange: {
+        color: ['#e0f3f8', '#0868ac']
+      },
+      textStyle: {
+        color: '#000'
+      }
+    },
+    geo: {
+      map: 'china',
+      roam: true,
+      zoom: 1,
+      center: [105, 36],
+      label: {
+        show: true,
+        fontSize: 12,
+        color: 'rgba(0,0,0,0.8)'
+      },
+      itemStyle: {
+        areaColor: '#f5f5f5',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        shadowColor: 'rgba(0, 0, 0, 0.1)',
+        shadowBlur: 10
+      },
+      emphasis: {
+        itemStyle: {
+          areaColor: '#409EFF',
+          borderWidth: 2
+        },
+        label: {
+          color: '#fff',
+          fontSize: 14
+        }
+      }
+    },
+    series: [
+      {
+        type: 'map',
+        map: 'china',
+        geoIndex: 0,
+        label: {
+          show: true
+        },
+        data: [
+          { name: '北京市', value: 1000 },
+          { name: '天津市', value: 800 },
+          { name: '河北省', value: 700 },
+          { name: '山西省', value: 600 },
+          { name: '内蒙古自治区', value: 500 },
+          { name: '辽宁省', value: 750 },
+          { name: '吉林省', value: 650 },
+          { name: '黑龙江省', value: 600 },
+          { name: '上海市', value: 950 },
+          { name: '江苏省', value: 850 },
+          { name: '浙江省', value: 820 },
+          { name: '安徽省', value: 620 },
+          { name: '福建省', value: 710 },
+          { name: '江西省', value: 580 },
+          { name: '山东省', value: 850 },
+          { name: '河南省', value: 700 },
+          { name: '湖北省', value: 660 },
+          { name: '湖南省', value: 680 },
+          { name: '广东省', value: 900 },
+          { name: '广西壮族自治区', value: 530 },
+          { name: '海南省', value: 470 },
+          { name: '重庆市', value: 750 },
+          { name: '四川省', value: 730 },
+          { name: '贵州省', value: 520 },
+          { name: '云南省', value: 550 },
+          { name: '西藏自治区', value: 300 },
+          { name: '陕西省', value: 610 },
+          { name: '甘肃省', value: 480 },
+          { name: '青海省', value: 350 },
+          { name: '宁夏回族自治区', value: 420 },
+          { name: '新疆维吾尔自治区', value: 400 },
+          { name: '台湾省', value: 690 },
+          { name: '香港特别行政区', value: 880 },
+          { name: '澳门特别行政区', value: 860 }
+        ],
+        itemStyle: {
+          borderColor: '#fff'
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: '#FF6B6B'
+          }
+        }
+      }
+    ]
+  };
+}
+
+// 处理地图点击事件
+async function handleMapClick(params) {
+  if (!params.name) return;
+
+  console.log('点击地区:', params.name);
+
+  // 保存当前地图状态
+  if (currentMapName !== params.name) {
+    mapStack.push({
+      mapName: currentMapName,
+      provinceName: currentProvinceName
+    });
+  }
+
+  // 切换到省份地图
+  await switchToProvinceMap(params.name);
+}
+
+// 切换到省份地图
+async function switchToProvinceMap(provinceName) {
+  try {
+    // 显示加载动画
+    myChart.showLoading();
+
+    // 根据省份名称构建JSON文件路径
+    // 注意：你需要有各省份的JSON文件
+    const provinceJsonUrl = getProvinceJsonUrl(provinceName);
+
+    console.log('加载省份JSON:', provinceJsonUrl);
+
+    // 尝试加载省份JSON
+    const response = await fetch(provinceJsonUrl);
+
+    if (!response.ok) {
+      throw new Error(`无法加载 ${provinceName} 的地图数据`);
+    }
+
+    const provinceJson = await response.json();
+
+    // 注册省份地图
+    const mapKey = `province_${provinceName}`;
+    echarts.registerMap(mapKey, provinceJson);
+
+    // 更新当前状态
+    currentMapName = mapKey;
+    currentProvinceName = provinceName;
+
+    // 创建省份地图配置
+    const option = getProvinceMapOption(mapKey, provinceName);
+
+    // 更新图表
+    myChart.setOption(option, true);
+
+    // 隐藏加载动画
+    myChart.hideLoading();
+
+    // 更新返回按钮
+    updateBackButton();
+
+    console.log(`已切换到 ${provinceName} 地图`);
+
+  } catch (error) {
+    console.error('切换省份地图失败:', error);
+    myChart.hideLoading();
+
+    // 如果加载失败，显示提示信息
+    alert(`无法加载 ${provinceName} 的地图数据\n错误: ${error.message}`);
+  }
+}
+
+// 构建省份JSON文件URL
+function getProvinceJsonUrl(provinceName) {
+  // 这里需要根据你的文件存储结构来构建URL
+  // 假设省份JSON文件存储在 provinces/ 目录下
+
+  // 省份名称映射到文件名（去掉特殊字符）
+  const fileNameMap = {
+    '北京市': 'beijing',
+    '天津市': 'tianjin',
+    '河北省': 'hebei',
+    '山西省': 'shanxi',
+    '内蒙古自治区': 'neimenggu',
+    '辽宁省': 'liaoning',
+    '吉林省': 'jilin',
+    '黑龙江省': 'heilongjiang',
+    '上海市': 'shanghai',
+    '江苏省': 'jiangsu',
+    '浙江省': 'zhejiang',
+    '安徽省': 'anhui',
+    '福建省': 'fujian',
+    '江西省': 'jiangxi',
+    '山东省': 'shandong',
+    '河南省': 'henan',
+    '湖北省': 'hubei',
+    '湖南省': 'hunan',
+    '广东省': 'guangdong',
+    '广西壮族自治区': 'guangxi',
+    '海南省': 'hainan',
+    '重庆市': 'chongqing',
+    '四川省': 'sichuan',
+    '贵州省': 'guizhou',
+    '云南省': 'yunnan',
+    '西藏自治区': 'xizang',
+    '陕西省': 'shanxi1', // 注意：山西和陕西拼音相同
+    '甘肃省': 'gansu',
+    '青海省': 'qinghai',
+    '宁夏回族自治区': 'ningxia',
+    '新疆维吾尔自治区': 'xinjiang',
+    '台湾省': 'taiwan',
+    '香港特别行政区': 'xianggang',
+    '澳门特别行政区': 'aomen'
+  };
+
+  const fileName = fileNameMap[provinceName] || provinceName.toLowerCase().replace(/[省市自治区特别行政区]/g, '');
+
+  // 修改为你的实际JSON文件路径
+  return `https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/provinces/${fileName}.json`;
+}
+
+// 获取省份地图配置
+function getProvinceMapOption(mapKey, provinceName) {
+  return {
+    backgroundColor: '#f0f9ff',
+    title: {
+      text: `${provinceName}地图`,
+      left: 'center',
+      subtext: '点击返回上一级',
+      subtextStyle: {
+        fontSize: 12,
+        color: '#666'
+      },
+      textStyle: {
+        fontSize: 18,
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        return `${params.name}`;
+      }
+    },
+    geo: {
+      map: mapKey,
+      roam: true,
+      zoom: 1,
+      label: {
+        show: true,
+        fontSize: 10,
+        color: 'rgba(0,0,0,0.8)'
+      },
+      itemStyle: {
+        areaColor: '#f5f5f5',
+        borderColor: '#ccc',
+        borderWidth: 1
+      },
+      emphasis: {
+        itemStyle: {
+          areaColor: '#409EFF',
+          borderWidth: 2
+        },
+        label: {
+          color: '#fff',
+          fontSize: 12
+        }
+      }
+    },
+    series: [
+      {
+        type: 'map',
+        map: mapKey,
+        geoIndex: 0,
+        label: {
+          show: true
+        },
+        // 这里可以添加省份内的城市数据
+        data: getProvinceData(provinceName),
+        itemStyle: {
+          borderColor: '#fff'
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: '#FF6B6B'
+          }
+        }
+      }
+    ]
+  };
+}
+
+// 获取省份数据（示例数据）
+function getProvinceData(provinceName) {
+  // 这里可以根据省份返回不同的数据
+  const provinceData = {
+    '广东省': [
+      { name: '广州市', value: 1000 },
+      { name: '深圳市', value: 900 },
+      { name: '珠海市', value: 500 },
+      { name: '东莞市', value: 600 },
+      { name: '佛山市', value: 550 }
+    ],
+    '江苏省': [
+      { name: '南京市', value: 800 },
+      { name: '苏州市', value: 850 },
+      { name: '无锡市', value: 600 },
+      { name: '常州市', value: 400 },
+      { name: '徐州市', value: 350 }
+    ],
+    '浙江省': [
+      { name: '杭州市', value: 850 },
+      { name: '宁波市', value: 700 },
+      { name: '温州市', value: 500 },
+      { name: '绍兴市', value: 400 },
+      { name: '嘉兴市', value: 350 }
+    ]
+    // 可以继续添加其他省份的数据
+  };
+
+  return provinceData[provinceName] || [];
+}
+
+// 初始化返回按钮
+function initBackButton() {
+  const container = document.getElementById('china-map-container');
+  const backButton = document.createElement('button');
+  backButton.id = 'map-back-button';
+  backButton.innerHTML = '返回全国地图';
+  backButton.style.cssText = `
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    padding: 8px 16px;
+    background: #409EFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  `;
+
+  backButton.addEventListener('click', goBackToChinaMap);
+
+  // 将按钮添加到地图容器中
+  container.style.position = 'relative';
+  container.appendChild(backButton);
+}
+
+// 更新返回按钮显示状态
+function updateBackButton() {
+  const backButton = document.getElementById('map-back-button');
+  if (backButton) {
+    backButton.style.display = currentMapName !== 'china' ? 'block' : 'none';
+    backButton.innerHTML = mapStack.length > 1 ? '返回上一级' : '返回全国地图';
+  }
+}
+
+// 返回全国地图
+function goBackToChinaMap() {
+  if (mapStack.length > 0) {
+    const prevState = mapStack.pop();
+
+    if (prevState.mapName === 'china') {
+      // 返回全国地图
+      myChart.setOption(getChinaMapOption(), true);
+      currentMapName = 'china';
+      currentProvinceName = '';
+    } else {
+      // 理论上这里可以处理多级返回，但需要加载对应地图
+      // 简化处理：直接返回全国地图
+      myChart.setOption(getChinaMapOption(), true);
+      currentMapName = 'china';
+      currentProvinceName = '';
+      mapStack = []; // 清空历史栈
+    }
+  } else {
+    // 直接返回全国地图
+    myChart.setOption(getChinaMapOption(), true);
+    currentMapName = 'china';
+    currentProvinceName = '';
+  }
+
+  // 更新返回按钮
+  updateBackButton();
+}
+
+// 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', async function() {
   await initChinaMap();
 });
