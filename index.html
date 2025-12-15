@@ -152,71 +152,6 @@
                     游泳动态
                 </h3>
                 <div class="space-y-6">
-                    <!-- 动态项1：图片+文字 -->
-                    <div class="flex flex-col md:flex-row gap-4 fade-in">
-                        <!-- 媒体展示区（图片）- 核心改造点 -->
-                        <div class="flex-shrink-0 w-full md:w-28 h-28 md:h-24 bg-blue-50 rounded-xl overflow-hidden flex items-center justify-center cursor-pointer media-item" data-index="0">
-                            <img
-                                src="./static/img/source/12-14-1.jpg"
-                                alt="爽"
-                                class="w-full h-full object-cover transition-transform hover:scale-105"
-                            >
-                        </div>
-                        <!-- 文字内容区 -->
-                        <div class="flex-1">
-                            <h4 class="font-medium text-gray-900">冷池下水记录</h4>
-                            <p class="text-gray-600 text-sm mt-1">没人跟我抢泳池，爽！</p>
-                            <p class="text-gray-400 text-xs mt-2">2025年12月15日</p>
-                        </div>
-                    </div>
-
-                    <!-- 动态项2：视频+文字 -->
-                    <div class="flex flex-col md:flex-row gap-4 fade-in" style="animation-delay: 0.1s">
-                        <!-- 媒体展示区（视频）- 核心改造点 -->
-                        <div class="flex-shrink-0 w-full md:w-28 h-28 md:h-24 bg-green-50 rounded-xl overflow-hidden flex items-center justify-center relative cursor-pointer media-item" data-index="1">
-                            <video
-                                src="./static/img/source/12-14-2.mp4"
-                                poster="./static/img/source/12-14-3.jpg"
-                                class="w-full h-full object-cover"
-                                controlsList="nodownload"
-                                preload="metadata"
-                            >
-                                您的浏览器不支持视频播放
-                            </video>
-                            <!-- 视频播放提示（可选） -->
-                            <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
-                                <i class="fa fa-play text-white text-xl"></i>
-                            </div>
-                        </div>
-                        <!-- 文字内容区 -->
-                        <div class="flex-1">
-                            <h4 class="font-medium text-gray-900">解锁新技能</h4>
-                            <p class="text-gray-600 text-sm mt-1">练腿练出新境界，一边打腿一边刷视频，以后是不是能一边游泳一边金铲铲了！</p>
-                            <p class="text-gray-400 text-xs mt-2">2025年12月14日</p>
-                        </div>
-                    </div>
-
-                    <!-- 动态项3：图片+文字（示例） -->
-                    <div class="flex flex-col md:flex-row gap-4 fade-in" style="animation-delay: 0.2s">
-                        <!-- 媒体展示区（图片） -->
-                        <div class="flex-shrink-0 w-full md:w-28 h-28 md:h-24 bg-purple-50 rounded-xl overflow-hidden flex items-center justify-center cursor-pointer media-item" data-index="0">
-                            <img
-                                src="./static/img/source/12-6-1.jpg"
-                                alt="第n次嘉陵江冬泳"
-                                class="w-full h-full object-cover transition-transform hover:scale-105"
-                            >
-                        </div>
-                        <!-- 文字内容区 -->
-                        <div class="flex-1">
-                            <h4 class="font-medium text-gray-900">第n次嘉陵江冬泳</h4>
-                            <p class="text-gray-600 text-sm mt-1">降温太快了，游多少次都不适应，已经游到对岸，但是岸上待太久，不敢下水了</p>
-                            <p class="text-gray-400 text-xs mt-2">2025年12月6日</p>
-                        </div>
-                    </div>
-
-                    <button class="w-full mt-4 py-2 text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors">
-                        查看更多动态 <i class="fa fa-angle-right ml-1"></i>
-                    </button>
                 </div>
             </div>
 
@@ -342,9 +277,6 @@
                                 <img src="./static/img/source/292-400x400.jpg" alt="成都文化" class="w-full h-full object-cover">
                                 <img src="./static/img/source/431-400x400.jpg" alt="成都熊猫" class="w-full h-full object-cover">
                             </div>
-                            <div class="absolute top-4 right-4 bg-secondary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
-                                图片动态
-                            </div>
                         </div>
                         <div class="md:w-1/2 p-6 relative">
                             <div class="flex justify-between items-start mb-4">
@@ -435,39 +367,17 @@
 
 <!-- 媒体弹窗（轮播） -->
 <div id="mediaModal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity 0.3s ease">
-    <!-- 关闭按钮 -->
     <button id="closeModal" class="absolute top-6 right-6 text-white text-2xl hover:text-gray-300 transition-colors">
         <i class="fa fa-times"></i>
     </button>
-
-    <!-- 左切换按钮 -->
     <button id="prevMedia" class="absolute left-6 text-white text-3xl hover:text-gray-300 transition-colors z-10">
         <i class="fa fa-chevron-left"></i>
     </button>
-
-    <!-- 右切换按钮 -->
     <button id="nextMedia" class="absolute right-6 text-white text-3xl hover:text-gray-300 transition-colors z-10">
         <i class="fa fa-chevron-right"></i>
     </button>
-
-    <!-- 轮播容器 -->
     <div id="carouselContainer" class="w-full max-w-4xl h-full max-h-[90vh] overflow-hidden relative">
-        <div id="carouselWrapper" class="flex h-full transition-transform 0.3s ease">
-            <!-- 轮播项1：图片 -->
-            <div class="carousel-item w-full flex-shrink-0 h-full flex items-center justify-center">
-                <img src="./static/img/source/12-14-1.jpg" alt="冷池下水记录" class="max-w-full max-h-full object-contain">
-            </div>
-            <!-- 轮播项2：视频 -->
-            <div class="carousel-item w-full flex-shrink-0 h-full flex items-center justify-center">
-                <video src="./static/img/source/12-14-2.mp4" class="max-w-full max-h-full object-contain" controls>
-                    您的浏览器不支持视频播放
-                </video>
-            </div>
-            <!-- 轮播项3：图片 -->
-            <div class="carousel-item w-full flex-shrink-0 h-full flex items-center justify-center">
-                <img src="./static/img/source/12-6-1.jpg" alt="第一次参加游泳比赛" class="max-w-full max-h-full object-contain">
-            </div>
-        </div>
+        <div id="carouselWrapper" class="flex h-full transition-transform 0.3s ease"></div>
     </div>
 </div>
 

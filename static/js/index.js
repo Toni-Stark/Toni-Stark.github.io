@@ -1,246 +1,462 @@
-<!-- Echarts -->
-
-// 存储当前地图层级和状态
-let myChart = null;
-let currentMapName = 'china';
-let currentProvinceName = '';
-let mapStack = []; // 用于记录地图切换历史
-let mapStyle = {
-    bg: '#f0f9ff',
-    point: '#3B82F6',
-    areaColor: '#EFF6FF',
-    borderColor: '#93C5FD',
-    emphasis: {
-        areaColor: '#3B82F6',
-        borderColor: '#1D4ED8',
-        shadowColor: 'rgba(59, 130, 246, 0.3)',
-    },
-    select: {
-        areaColor: '#1D4ED8',
-        borderColor: '#1E40AF',
-        shadowColor: 'rgba(29, 78, 216, 0.4)',
-    },
-    series: {
-        areaColor: '#DBEAFE',
+async function initChinaMap(){
+    // 存储当前地图层级和状态
+    let myChart = null;
+    let currentMapName = 'china';
+    let currentProvinceName = '';
+    let mapStack = []; // 用于记录地图切换历史
+    let mapStyle = {
+        bg: '#f0f9ff',
+        point: '#3B82F6',
+        areaColor: '#EFF6FF',
+        borderColor: '#93C5FD',
         emphasis: {
             areaColor: '#3B82F6',
+            borderColor: '#1D4ED8',
             shadowColor: 'rgba(59, 130, 246, 0.3)',
         },
         select: {
             areaColor: '#1D4ED8',
-            shadowColor: 'rgba(29, 78, 216, 0.5)',
-        }
-    }
-};
-
-<!-- JavaScript -->
-window.addEventListener('scroll', function () {
-    const navbar = document.getElementById('navbar');
-    if (window.scrollY > 50) {
-        navbar.classList.add('py-2', 'shadow-md');
-        navbar.classList.remove('py-3', 'shadow-sm');
-    } else {
-        navbar.classList.add('py-3', 'shadow-sm');
-        navbar.classList.remove('py-2', 'shadow-md');
-    }
-});
-
-// 移动端菜单切换
-document.getElementById('menu-toggle').addEventListener('click', function () {
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
-});
-
-// 地图主题切换
-const initMapThemes = () => {
-    const mapContainer = document.getElementById('china-map-container');
-    const themeButtons = document.querySelectorAll('.map-theme-btn');
-    const mapPoints = document.querySelectorAll('.map-point');
-
-    const themes = {
-        blue: {
-            bg: '#f0f9ff',
-            point: '#3B82F6',
-            areaColor: '#EFF6FF',
-            borderColor: '#93C5FD',
+            borderColor: '#1E40AF',
+            shadowColor: 'rgba(29, 78, 216, 0.4)',
+        },
+        series: {
+            areaColor: '#DBEAFE',
             emphasis: {
                 areaColor: '#3B82F6',
-                borderColor: '#1D4ED8',
                 shadowColor: 'rgba(59, 130, 246, 0.3)',
             },
             select: {
                 areaColor: '#1D4ED8',
-                borderColor: '#1E40AF',
-                shadowColor: 'rgba(29, 78, 216, 0.4)',
-            },
-            series: {
-                areaColor: '#DBEAFE',
-                emphasis: {
-                    areaColor: '#3B82F6',
-                    shadowColor: 'rgba(59, 130, 246, 0.3)',
-                },
-                select: {
-                    areaColor: '#1D4ED8',
-                    shadowColor: 'rgba(29, 78, 216, 0.5)',
-                }
-            }
-        },
-        green: {
-            bg: '#ecfdf5',
-            point: '#10B981',
-            areaColor: '#EFF6FF',
-            borderColor: '#A7F3D0',
-            emphasis: {
-                areaColor: '#10B981',
-                borderColor: '#059669',
-                shadowColor: 'rgba(16, 185, 129, 0.3)',
-            },
-            select: {
-                areaColor: '#059669',
-                borderColor: '#047857',
-                shadowColor: 'rgba(5, 150, 105, 0.4)',
-            },
-            series: {
-                areaColor: '#D1FAE5',
-                emphasis: {
-                    areaColor: '#10B981',
-                    shadowColor: 'rgba(16, 185, 129, 0.3)',
-                },
-                select: {
-                    areaColor: '#059669',
-                    shadowColor: 'rgba(5, 150, 105, 0.5)',
-                }
-            }
-        },
-        purple: {
-            bg: '#faf5ff',
-            point: '#8B5CF6',
-            areaColor: '#F5F3FF',
-            borderColor: '#C4B5FD',
-            emphasis: {
-                areaColor: '#8B5CF6',
-                borderColor: '#7C3AED',
-                shadowColor: 'rgba(139, 92, 246, 0.3)',
-            },
-            select: {
-                areaColor: '#7C3AED',
-                borderColor: '#6D28D9',
-                shadowColor: 'rgba(124, 58, 237, 0.4)',
-            },
-            series: {
-                areaColor: '#EDE9FE',
-                emphasis: {
-                    areaColor: '#8B5CF6',
-                    shadowColor: 'rgba(139, 92, 246, 0.3)',
-                },
-                select: {
-                    areaColor: '#7C3AED',
-                    shadowColor: 'rgba(124, 58, 237, 0.5)',
-                }
-            }
-        },
-        amber: {
-            bg: '#fffbeb',
-            point: '#F59E0B',
-            areaColor: '#FFFBEB',
-            borderColor: '#FCD34D',
-            emphasis: {
-                areaColor: '#F59E0B',
-                borderColor: '#D97706',
-                shadowColor: 'rgba(245, 158, 11, 0.3)',
-            },
-            select: {
-                areaColor: '#D97706',
-                borderColor: '#B45309',
-                shadowColor: 'rgba(217, 119, 6, 0.4)',
-            },
-            series: {
-                areaColor: '#FEF3C7',
-                emphasis: {
-                    areaColor: '#F59E0B',
-                    shadowColor: 'rgba(245, 158, 11, 0.3)',
-                },
-                select: {
-                    areaColor: '#D97706',
-                    shadowColor: 'rgba(217, 119, 6, 0.5)',
-                }
+                shadowColor: 'rgba(29, 78, 216, 0.5)',
             }
         }
     };
 
-    themeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // 移除所有按钮的激活状态
-            themeButtons.forEach(b => b.classList.remove('border-2', 'border-primary', 'border-secondary', 'border-accent', 'border-amber-500'));
+    // 初始化返回按钮
+    function initBackButton() {
+        const container = document.getElementById('china-map-container');
+        const backButton = document.createElement('button');
+        backButton.id = 'map-back-button';
+        backButton.innerHTML = '返回全国地图';
+        backButton.style.cssText = `
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    padding: 8px 16px;
+    background: #409EFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  `;
 
-            const theme = btn.getAttribute('data-theme');
-            const themeData = themes[theme];
+        backButton.addEventListener('click', goBackToChinaMap);
 
-            // 设置地图背景色
-            mapContainer.style.backgroundColor = themeData.bg;
+        // 将按钮添加到地图容器中
+        container.style.position = 'relative';
+        container.appendChild(backButton);
+    }
 
-            // 设置标记点颜色
-            mapPoints.forEach(point => {
-                point.style.backgroundColor = themeData.point;
+    // 更新返回按钮显示状态
+    function updateBackButton() {
+        const backButton = document.getElementById('map-back-button');
+        if (backButton) {
+            backButton.style.display = currentMapName !== 'china' ? 'block' : 'none';
+            backButton.innerHTML = mapStack.length > 1 ? '返回上一级' : '返回全国地图';
+        }
+    }
+
+    // 返回全国地图
+    function goBackToChinaMap() {
+        if (mapStack.length > 0) {
+            const prevState = mapStack.pop();
+
+            if (prevState.mapName === 'china') {
+                // 返回全国地图
+                myChart.setOption(getChinaMapOption(), true);
+                currentMapName = 'china';
+                currentProvinceName = '';
+            } else {
+                // 理论上这里可以处理多级返回，但需要加载对应地图
+                // 简化处理：直接返回全国地图
+                myChart.setOption(getChinaMapOption(), true);
+                currentMapName = 'china';
+                currentProvinceName = '';
+                mapStack = []; // 清空历史栈
+            }
+        } else {
+            // 直接返回全国地图
+            myChart.setOption(getChinaMapOption(), true);
+            currentMapName = 'china';
+            currentProvinceName = '';
+        }
+        myChart.off('click')
+        myChart.on('click', handleMapClick);
+        // 更新返回按钮
+        updateBackButton();
+    }
+
+    // 获取省份地图配置
+    function getProvinceMapOption(mapKey, provinceName) {
+        let s = mapStyle;
+        return {
+            title: {
+                text: `${provinceName}地图`,
+                left: 'center',
+                subtext: '点击返回上一级',
+                subtextStyle: {
+                    fontSize: 12,
+                    color: '#666'
+                },
+                textStyle: {
+                    fontSize: 18,
+                    color: '#333'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function (params) {
+                    return `${params.name}`;
+                }
+            },
+            geo: {
+                map: mapKey,
+                roam: true,
+                zoom: 1,
+                label: {
+                    show: true,
+                    fontSize: 10,
+                    color: 'rgba(0,0,0,0.8)'
+                },
+                itemStyle: {
+                    areaColor: s.areaColor, // 浅蓝色背景
+                    borderColor: s.borderColor, // 蓝色边框
+                    borderWidth: 1,
+                    shadowColor: 'rgba(0, 0, 0, 0.05)',
+                    shadowBlur: 5
+                },
+                emphasis: {
+                    itemStyle: {
+                        areaColor: s.emphasis.areaColor,
+                        borderColor: s.emphasis.borderColor,
+                        borderWidth: 2,
+                        shadowColor: s.emphasis.shadowColor,
+                        shadowBlur: 10
+                    },
+                    label: {
+                        color: '#fff',
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    }
+                },
+                select: {
+                    itemStyle: {
+                        areaColor: s.select.areaColor, // 点击后的深蓝色
+                        borderColor: s.select.borderColor,
+                        borderWidth: 2,
+                        shadowColor: s.select.shadowColor,
+                        shadowBlur: 15
+                    },
+                    label: {
+                        color: '#fff',
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            series: [
+                {
+                    type: 'map',
+                    map: mapKey,
+                    geoIndex: 0,
+                    label: {
+                        show: true,
+                        color: '#111827'
+                    },
+                    itemStyle: {
+                        areaColor: s.series.areaColor, // 省份区域颜色
+                        borderColor: "#ffffff",
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor:s.series.emphasis.areaColor, // 鼠标悬停主题色
+                            borderColor: '#FFFFFF',
+                            borderWidth: 2,
+                            shadowColor: s.series.emphasis.shadowColor,
+                            shadowBlur: 10
+                        }
+                    }
+                }
+            ]
+        };
+    }
+
+
+    // 构建省份JSON文件URL
+    function getProvinceJsonUrl(provinceName) {
+        // 省份名称映射到文件名（去掉特殊字符）
+        const fileNameMap = {
+            '北京': 'beijing',
+            '天津': 'tianjin',
+            '河北': 'hebei',
+            '山西': 'shanxi',
+            '内蒙古': 'neimenggu',
+            '辽宁': 'liaoning',
+            '吉林': 'jilin',
+            '黑龙江': 'heilongjiang',
+            '上海': 'shanghai',
+            '江苏': 'jiangsu',
+            '浙江': 'zhejiang',
+            '安徽': 'anhui',
+            '福建': 'fujian',
+            '江西': 'jiangxi',
+            '山东': 'shandong',
+            '河南': 'henan',
+            '湖北': 'hubei',
+            '湖南': 'hunan',
+            '广东': 'guangdong',
+            '广西': 'guangxi',
+            '海南': 'hainan',
+            '重庆': 'chongqing',
+            '四川': 'sichuan',
+            '贵州': 'guizhou',
+            '云南': 'yunnan',
+            '西藏': 'xizang',
+            '陕西': 'shanxi1', // 注意：山西和陕西拼音相同
+            '甘肃': 'gansu',
+            '青海': 'qinghai',
+            '宁夏': 'ningxia',
+            '新疆': 'xinjiang',
+            '台湾': 'taiwan',
+            '香港': 'xianggang',
+            '澳门': 'aomen'
+        };
+        const fileName = fileNameMap[provinceName] || provinceName.toLowerCase().replace(/[省市自治区特别行政区]/g, '');
+
+        // 修改为你的实际JSON文件路径
+        return {
+            url: `https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/provinces/${decodeURIComponent(fileName)}.json`,
+            key: fileName
+        }
+    }
+
+    // 切换到省份地图
+    async function switchToProvinceMap(provinceName) {
+        try {
+            const container = document.getElementById('china-map-container');
+
+            // 显示加载动画
+            myChart = echarts.init(container, null, {
+                renderer: 'canvas',
+                devicePixelRatio: window.devicePixelRatio || 1
+            });
+            myChart.showLoading();
+
+            // 根据省份名称构建JSON文件路径
+            // 注意：你需要有各省份的JSON文件
+            const provinceJson = getProvinceJsonUrl(provinceName);
+
+            console.log('加载省份JSON:', provinceJson);
+
+            // 尝试加载省份JSON
+            const response = await fetch(provinceJson.url);
+
+            if (!response.ok) {
+                throw new Error(`无法加载 ${provinceName} 的地图数据`);
+            }
+
+            const provinceObj = await response.json();
+
+            // 注册省份地图
+            const mapKey = provinceJson.key;
+            echarts.registerMap(mapKey, provinceObj);
+
+            // 更新当前状态
+            currentMapName = mapKey;
+            currentProvinceName = provinceName;
+            // 创建省份地图配置
+            const option = getProvinceMapOption(mapKey, provinceName);
+
+            // 更新图表
+            myChart.setOption(option, true);
+            myChart.off('click')
+            myChart.on('click', () => {
+                console.log('logout')
             });
 
-            // 添加当前按钮的激活状态
-            btn.classList.add('border-2');
-            mapStyle = themeData;
-            switch (theme) {
-                case 'blue':
-                    btn.classList.add('border-primary');
-                    myChart.setOption(getChinaMapOption(), true);
-                    myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
-                    break;
-                case 'green':
-                    btn.classList.add('border-secondary');
-                    myChart.setOption(getChinaMapOption(), true);
-                    myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
-                    break;
-                case 'purple':
-                    btn.classList.add('border-accent');
-                    myChart.setOption(getChinaMapOption(), true);
-                    myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
-                    break;
-                case 'amber':
-                    btn.classList.add('border-amber-500');
-                    myChart.setOption(getChinaMapOption(), true);
-                    myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
-                    break;
-            }
-        });
-    });
-};
+            // 隐藏加载动画
+            myChart.hideLoading();
 
-// 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    initMapThemes();
+            // 更新返回按钮
+            updateBackButton();
 
-    // 平滑滚动
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
+            console.log(`已切换到 ${provinceName} 地图`);
 
-            // 关闭移动端菜单
-            document.getElementById('mobile-menu').classList.add('hidden');
+        } catch (error) {
+            console.error('切换省份地图失败:', error);
+            myChart.hideLoading();
 
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
+            // 如果加载失败，显示提示信息
+            alert(`无法加载 ${provinceName} 的地图数据\n错误: ${error.message}`);
+        }
+    }
 
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 80,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-});
+    // 处理地图点击事件
+    async function handleMapClick(params) {
+        if (!params.name) return;
 
+        console.log('点击地区:', params.name);
 
-async function initChinaMap() {
+        // 保存当前地图状态
+        if (currentMapName !== params.name) {
+            mapStack.push({
+                mapName: currentMapName,
+                provinceName: currentProvinceName
+            });
+        }
+
+        // 切换到省份地图
+        await switchToProvinceMap(params.name);
+    }
+
+    // 获取全国地图配置
+    function getChinaMapOption() {
+        let s = mapStyle;
+        return {
+            title: {
+                text: '中国地图',
+                left: 'center',
+                subtext: '点击省份查看详情',
+                subtextStyle: {
+                    fontSize: 12,
+                    color: '#666'
+                },
+                textStyle: {
+                    fontSize: 18,
+                    color: '#333'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function (params) {
+                    return `${params.name}<br/>点击查看详情`;
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                zoom: 1,
+                center: [105, 36],
+                label: {
+                    show: true,
+                    fontSize: 12,
+                    color: 'rgba(0,0,0,0.8)'
+                },
+                itemStyle: {
+                    areaColor: s.areaColor, // 浅蓝色背景
+                    borderColor: s.borderColor, // 蓝色边框
+                    borderWidth: 1,
+                    shadowColor: 'rgba(0, 0, 0, 0.05)',
+                    shadowBlur: 5
+                },
+                emphasis: {
+                    itemStyle: {
+                        areaColor: s.emphasis.areaColor,
+                        borderColor: s.emphasis.borderColor,
+                        borderWidth: 2,
+                        shadowColor: s.emphasis.shadowColor,
+                        shadowBlur: 10
+                    },
+                    label: {
+                        color: '#fff',
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    }
+                },
+                select: {
+                    itemStyle: {
+                        areaColor: s.select.areaColor, // 点击后的深蓝色
+                        borderColor: s.select.borderColor,
+                        borderWidth: 2,
+                        shadowColor: s.select.shadowColor,
+                        shadowBlur: 15
+                    },
+                    label: {
+                        color: '#fff',
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            series: [
+                {
+                    type: 'map',
+                    map: 'china',
+                    geoIndex: 0,
+                    label: {
+                        show: true,
+                        color: '#111827'
+                    },
+                    data: [
+                        {name: '北京', value: 1000},
+                        {name: '天津', value: 800},
+                        {name: '河北', value: 700},
+                        {name: '山西', value: 600},
+                        {name: '内蒙古', value: 500},
+                        {name: '辽宁', value: 750},
+                        {name: '吉林', value: 650},
+                        {name: '黑龙江', value: 600},
+                        {name: '上海', value: 950},
+                        {name: '江苏', value: 850},
+                        {name: '浙江', value: 820},
+                        {name: '安徽', value: 620},
+                        {name: '福建', value: 710},
+                        {name: '江西', value: 580},
+                        {name: '山东', value: 850},
+                        {name: '河南', value: 700},
+                        {name: '湖北', value: 660},
+                        {name: '湖南', value: 680},
+                        {name: '广东', value: 900},
+                        {name: '广西', value: 530},
+                        {name: '海南', value: 470},
+                        {name: '重庆', value: 750},
+                        {name: '四川', value: 730},
+                        {name: '贵州', value: 520},
+                        {name: '云南', value: 550},
+                        {name: '西藏', value: 300},
+                        {name: '陕西', value: 610},
+                        {name: '甘肃', value: 480},
+                        {name: '青海', value: 350},
+                        {name: '宁夏', value: 420},
+                        {name: '新疆', value: 400},
+                        {name: '台湾', value: 690},
+                        {name: '香港', value: 880},
+                        {name: '澳门', value: 860}
+                    ],
+                    itemStyle: {
+                        areaColor: s.series.areaColor, // 省份区域颜色
+                        borderColor: "#ffffff",
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor:s.series.emphasis.areaColor, // 鼠标悬停主题色
+                            borderColor: '#FFFFFF',
+                            borderWidth: 2,
+                            shadowColor: s.series.emphasis.shadowColor,
+                            shadowBlur: 10
+                        }
+                    }
+                }
+            ]
+        };
+    }
+
     try {
         // 1. 获取中国地图JSON文件
         const response = await fetch('https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/china.json');
@@ -288,8 +504,6 @@ async function initChinaMap() {
             myChart && myChart.resize();
         }, 100);
 
-        return myChart;
-
     } catch (error) {
         console.error('地图初始化失败:', error);
         document.getElementById('china-map-container').innerHTML =
@@ -299,517 +513,744 @@ async function initChinaMap() {
         <p>请检查网络连接或JSON文件路径</p>
       </div>`;
     }
-}
 
-// 获取全国地图配置
-function getChinaMapOption() {
-    let s = mapStyle;
-    return {
-        title: {
-            text: '中国地图',
-            left: 'center',
-            subtext: '点击省份查看详情',
-            subtextStyle: {
-                fontSize: 12,
-                color: '#666'
-            },
-            textStyle: {
-                fontSize: 18,
-                color: '#333'
-            }
-        },
-        tooltip: {
-            trigger: 'item',
-            formatter: function (params) {
-                return `${params.name}<br/>点击查看详情`;
-            }
-        },
-        geo: {
-            map: 'china',
-            roam: true,
-            zoom: 1,
-            center: [105, 36],
-            label: {
-                show: true,
-                fontSize: 12,
-                color: 'rgba(0,0,0,0.8)'
-            },
-            itemStyle: {
-                areaColor: s.areaColor, // 浅蓝色背景
-                borderColor: s.borderColor, // 蓝色边框
-                borderWidth: 1,
-                shadowColor: 'rgba(0, 0, 0, 0.05)',
-                shadowBlur: 5
-            },
-            emphasis: {
-                itemStyle: {
-                    areaColor: s.emphasis.areaColor,
-                    borderColor: s.emphasis.borderColor,
-                    borderWidth: 2,
-                    shadowColor: s.emphasis.shadowColor,
-                    shadowBlur: 10
-                },
-                label: {
-                    color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 'bold'
-                }
-            },
-            select: {
-                itemStyle: {
-                    areaColor: s.select.areaColor, // 点击后的深蓝色
-                    borderColor: s.select.borderColor,
-                    borderWidth: 2,
-                    shadowColor: s.select.shadowColor,
-                    shadowBlur: 15
-                },
-                label: {
-                    color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 'bold'
-                }
-            }
-        },
-        series: [
-            {
-                type: 'map',
-                map: 'china',
-                geoIndex: 0,
-                label: {
-                    show: true,
-                    color: '#111827'
-                },
-                data: [
-                    {name: '北京', value: 1000},
-                    {name: '天津', value: 800},
-                    {name: '河北', value: 700},
-                    {name: '山西', value: 600},
-                    {name: '内蒙古', value: 500},
-                    {name: '辽宁', value: 750},
-                    {name: '吉林', value: 650},
-                    {name: '黑龙江', value: 600},
-                    {name: '上海', value: 950},
-                    {name: '江苏', value: 850},
-                    {name: '浙江', value: 820},
-                    {name: '安徽', value: 620},
-                    {name: '福建', value: 710},
-                    {name: '江西', value: 580},
-                    {name: '山东', value: 850},
-                    {name: '河南', value: 700},
-                    {name: '湖北', value: 660},
-                    {name: '湖南', value: 680},
-                    {name: '广东', value: 900},
-                    {name: '广西', value: 530},
-                    {name: '海南', value: 470},
-                    {name: '重庆', value: 750},
-                    {name: '四川', value: 730},
-                    {name: '贵州', value: 520},
-                    {name: '云南', value: 550},
-                    {name: '西藏', value: 300},
-                    {name: '陕西', value: 610},
-                    {name: '甘肃', value: 480},
-                    {name: '青海', value: 350},
-                    {name: '宁夏', value: 420},
-                    {name: '新疆', value: 400},
-                    {name: '台湾', value: 690},
-                    {name: '香港', value: 880},
-                    {name: '澳门', value: 860}
-                ],
-                itemStyle: {
-                    areaColor: s.series.areaColor, // 省份区域颜色
-                    borderColor: "#ffffff",
-                    borderWidth: 1
-                },
+    // 地图主题切换
+    const initMapThemes = () => {
+        const mapContainer = document.getElementById('china-map-container');
+        const themeButtons = document.querySelectorAll('.map-theme-btn');
+        const mapPoints = document.querySelectorAll('.map-point');
+
+        const themes = {
+            blue: {
+                bg: '#f0f9ff',
+                point: '#3B82F6',
+                areaColor: '#EFF6FF',
+                borderColor: '#93C5FD',
                 emphasis: {
-                    itemStyle: {
-                        areaColor:s.series.emphasis.areaColor, // 鼠标悬停主题色
-                        borderColor: '#FFFFFF',
-                        borderWidth: 2,
-                        shadowColor: s.series.emphasis.shadowColor,
-                        shadowBlur: 10
+                    areaColor: '#3B82F6',
+                    borderColor: '#1D4ED8',
+                    shadowColor: 'rgba(59, 130, 246, 0.3)',
+                },
+                select: {
+                    areaColor: '#1D4ED8',
+                    borderColor: '#1E40AF',
+                    shadowColor: 'rgba(29, 78, 216, 0.4)',
+                },
+                series: {
+                    areaColor: '#DBEAFE',
+                    emphasis: {
+                        areaColor: '#3B82F6',
+                        shadowColor: 'rgba(59, 130, 246, 0.3)',
+                    },
+                    select: {
+                        areaColor: '#1D4ED8',
+                        shadowColor: 'rgba(29, 78, 216, 0.5)',
+                    }
+                }
+            },
+            green: {
+                bg: '#ecfdf5',
+                point: '#10B981',
+                areaColor: '#EFF6FF',
+                borderColor: '#A7F3D0',
+                emphasis: {
+                    areaColor: '#10B981',
+                    borderColor: '#059669',
+                    shadowColor: 'rgba(16, 185, 129, 0.3)',
+                },
+                select: {
+                    areaColor: '#059669',
+                    borderColor: '#047857',
+                    shadowColor: 'rgba(5, 150, 105, 0.4)',
+                },
+                series: {
+                    areaColor: '#D1FAE5',
+                    emphasis: {
+                        areaColor: '#10B981',
+                        shadowColor: 'rgba(16, 185, 129, 0.3)',
+                    },
+                    select: {
+                        areaColor: '#059669',
+                        shadowColor: 'rgba(5, 150, 105, 0.5)',
+                    }
+                }
+            },
+            purple: {
+                bg: '#faf5ff',
+                point: '#8B5CF6',
+                areaColor: '#F5F3FF',
+                borderColor: '#C4B5FD',
+                emphasis: {
+                    areaColor: '#8B5CF6',
+                    borderColor: '#7C3AED',
+                    shadowColor: 'rgba(139, 92, 246, 0.3)',
+                },
+                select: {
+                    areaColor: '#7C3AED',
+                    borderColor: '#6D28D9',
+                    shadowColor: 'rgba(124, 58, 237, 0.4)',
+                },
+                series: {
+                    areaColor: '#EDE9FE',
+                    emphasis: {
+                        areaColor: '#8B5CF6',
+                        shadowColor: 'rgba(139, 92, 246, 0.3)',
+                    },
+                    select: {
+                        areaColor: '#7C3AED',
+                        shadowColor: 'rgba(124, 58, 237, 0.5)',
+                    }
+                }
+            },
+            amber: {
+                bg: '#fffbeb',
+                point: '#F59E0B',
+                areaColor: '#FFFBEB',
+                borderColor: '#FCD34D',
+                emphasis: {
+                    areaColor: '#F59E0B',
+                    borderColor: '#D97706',
+                    shadowColor: 'rgba(245, 158, 11, 0.3)',
+                },
+                select: {
+                    areaColor: '#D97706',
+                    borderColor: '#B45309',
+                    shadowColor: 'rgba(217, 119, 6, 0.4)',
+                },
+                series: {
+                    areaColor: '#FEF3C7',
+                    emphasis: {
+                        areaColor: '#F59E0B',
+                        shadowColor: 'rgba(245, 158, 11, 0.3)',
+                    },
+                    select: {
+                        areaColor: '#D97706',
+                        shadowColor: 'rgba(217, 119, 6, 0.5)',
                     }
                 }
             }
-        ]
-    };
-}
+        };
 
-// 处理地图点击事件
-async function handleMapClick(params) {
-    if (!params.name) return;
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有按钮的激活状态
+                themeButtons.forEach(b => b.classList.remove('border-2', 'border-primary', 'border-secondary', 'border-accent', 'border-amber-500'));
 
-    console.log('点击地区:', params.name);
+                const theme = btn.getAttribute('data-theme');
+                const themeData = themes[theme];
 
-    // 保存当前地图状态
-    if (currentMapName !== params.name) {
-        mapStack.push({
-            mapName: currentMapName,
-            provinceName: currentProvinceName
-        });
-    }
+                // 设置地图背景色
+                mapContainer.style.backgroundColor = themeData.bg;
 
-    // 切换到省份地图
-    await switchToProvinceMap(params.name);
-}
+                // 设置标记点颜色
+                mapPoints.forEach(point => {
+                    point.style.backgroundColor = themeData.point;
+                });
 
-// 切换到省份地图
-async function switchToProvinceMap(provinceName) {
-    try {
-        const container = document.getElementById('china-map-container');
-
-        // 显示加载动画
-        myChart = echarts.init(container, null, {
-            renderer: 'canvas',
-            devicePixelRatio: window.devicePixelRatio || 1
-        });
-        myChart.showLoading();
-
-        // 根据省份名称构建JSON文件路径
-        // 注意：你需要有各省份的JSON文件
-        const provinceJson = getProvinceJsonUrl(provinceName);
-
-        console.log('加载省份JSON:', provinceJson);
-
-        // 尝试加载省份JSON
-        const response = await fetch(provinceJson.url);
-
-        if (!response.ok) {
-            throw new Error(`无法加载 ${provinceName} 的地图数据`);
-        }
-
-        const provinceObj = await response.json();
-
-        // 注册省份地图
-        const mapKey = provinceJson.key;
-        echarts.registerMap(mapKey, provinceObj);
-
-        // 更新当前状态
-        currentMapName = mapKey;
-        currentProvinceName = provinceName;
-        // 创建省份地图配置
-        const option = getProvinceMapOption(mapKey, provinceName);
-
-        // 更新图表
-        myChart.setOption(option, true);
-        myChart.off('click')
-        myChart.on('click', () => {
-            console.log('logout')
-        });
-
-        // 隐藏加载动画
-        myChart.hideLoading();
-
-        // 更新返回按钮
-        updateBackButton();
-
-        console.log(`已切换到 ${provinceName} 地图`);
-
-    } catch (error) {
-        console.error('切换省份地图失败:', error);
-        myChart.hideLoading();
-
-        // 如果加载失败，显示提示信息
-        alert(`无法加载 ${provinceName} 的地图数据\n错误: ${error.message}`);
-    }
-}
-
-// 构建省份JSON文件URL
-function getProvinceJsonUrl(provinceName) {
-    // 省份名称映射到文件名（去掉特殊字符）
-    const fileNameMap = {
-        '北京': 'beijing',
-        '天津': 'tianjin',
-        '河北': 'hebei',
-        '山西': 'shanxi',
-        '内蒙古': 'neimenggu',
-        '辽宁': 'liaoning',
-        '吉林': 'jilin',
-        '黑龙江': 'heilongjiang',
-        '上海': 'shanghai',
-        '江苏': 'jiangsu',
-        '浙江': 'zhejiang',
-        '安徽': 'anhui',
-        '福建': 'fujian',
-        '江西': 'jiangxi',
-        '山东': 'shandong',
-        '河南': 'henan',
-        '湖北': 'hubei',
-        '湖南': 'hunan',
-        '广东': 'guangdong',
-        '广西': 'guangxi',
-        '海南': 'hainan',
-        '重庆': 'chongqing',
-        '四川': 'sichuan',
-        '贵州': 'guizhou',
-        '云南': 'yunnan',
-        '西藏': 'xizang',
-        '陕西': 'shanxi1', // 注意：山西和陕西拼音相同
-        '甘肃': 'gansu',
-        '青海': 'qinghai',
-        '宁夏': 'ningxia',
-        '新疆': 'xinjiang',
-        '台湾': 'taiwan',
-        '香港': 'xianggang',
-        '澳门': 'aomen'
-    };
-    const fileName = fileNameMap[provinceName] || provinceName.toLowerCase().replace(/[省市自治区特别行政区]/g, '');
-
-    // 修改为你的实际JSON文件路径
-    return {
-        url: `https://raw.githubusercontent.com/Toni-Stark/Toni-Stark.github.io/refs/heads/github-pages/static/plugins/map/provinces/${decodeURIComponent(fileName)}.json`,
-        key: fileName
-    }
-}
-
-// 获取省份地图配置
-function getProvinceMapOption(mapKey, provinceName) {
-    let s = mapStyle;
-    return {
-        title: {
-            text: `${provinceName}地图`,
-            left: 'center',
-            subtext: '点击返回上一级',
-            subtextStyle: {
-                fontSize: 12,
-                color: '#666'
-            },
-            textStyle: {
-                fontSize: 18,
-                color: '#333'
-            }
-        },
-        tooltip: {
-            trigger: 'item',
-            formatter: function (params) {
-                return `${params.name}`;
-            }
-        },
-        geo: {
-            map: mapKey,
-            roam: true,
-            zoom: 1,
-            label: {
-                show: true,
-                fontSize: 10,
-                color: 'rgba(0,0,0,0.8)'
-            },
-            itemStyle: {
-                areaColor: s.areaColor, // 浅蓝色背景
-                borderColor: s.borderColor, // 蓝色边框
-                borderWidth: 1,
-                shadowColor: 'rgba(0, 0, 0, 0.05)',
-                shadowBlur: 5
-            },
-            emphasis: {
-                itemStyle: {
-                    areaColor: s.emphasis.areaColor,
-                    borderColor: s.emphasis.borderColor,
-                    borderWidth: 2,
-                    shadowColor: s.emphasis.shadowColor,
-                    shadowBlur: 10
-                },
-                label: {
-                    color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 'bold'
+                // 添加当前按钮的激活状态
+                btn.classList.add('border-2');
+                mapStyle = themeData;
+                switch (theme) {
+                    case 'blue':
+                        btn.classList.add('border-primary');
+                        myChart.setOption(getChinaMapOption(), true);
+                        myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
+                        break;
+                    case 'green':
+                        btn.classList.add('border-secondary');
+                        myChart.setOption(getChinaMapOption(), true);
+                        myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
+                        break;
+                    case 'purple':
+                        btn.classList.add('border-accent');
+                        myChart.setOption(getChinaMapOption(), true);
+                        myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
+                        break;
+                    case 'amber':
+                        btn.classList.add('border-amber-500');
+                        myChart.setOption(getChinaMapOption(), true);
+                        myChart.setOption(getProvinceMapOption(currentMapName, currentProvinceName), true);
+                        break;
                 }
-            },
-            select: {
-                itemStyle: {
-                    areaColor: s.select.areaColor, // 点击后的深蓝色
-                    borderColor: s.select.borderColor,
-                    borderWidth: 2,
-                    shadowColor: s.select.shadowColor,
-                    shadowBlur: 15
-                },
-                label: {
-                    color: '#fff',
-                    fontSize: 14,
-                    fontWeight: 'bold'
-                }
-            }
-        },
-        series: [
-            {
-                type: 'map',
-                map: mapKey,
-                geoIndex: 0,
-                label: {
-                    show: true,
-                    color: '#111827'
-                },
-                itemStyle: {
-                    areaColor: s.series.areaColor, // 省份区域颜色
-                    borderColor: "#ffffff",
-                    borderWidth: 1
-                },
-                emphasis: {
-                    itemStyle: {
-                        areaColor:s.series.emphasis.areaColor, // 鼠标悬停主题色
-                        borderColor: '#FFFFFF',
-                        borderWidth: 2,
-                        shadowColor: s.series.emphasis.shadowColor,
-                        shadowBlur: 10
-                    }
-                }
-            }
-        ]
+            });
+        });
     };
+
+    // 页面加载完成后初始化
+    initMapThemes();
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // 关闭移动端菜单
+                document.getElementById('mobile-menu').classList.add('hidden');
+
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
 }
 
-// 初始化返回按钮
-function initBackButton() {
-    const container = document.getElementById('china-map-container');
-    const backButton = document.createElement('button');
-    backButton.id = 'map-back-button';
-    backButton.innerHTML = '返回全国地图';
-    backButton.style.cssText = `
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
-    padding: 8px 16px;
-    background: #409EFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: none;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  `;
+async function renderSwimmingModal(){
+    // 核心变量
+    const modal = document.getElementById('mediaModal');
+    const closeModal = document.getElementById('closeModal');
+    const prevMedia = document.getElementById('prevMedia');
+    const nextMedia = document.getElementById('nextMedia');
+    const carouselWrapper = document.getElementById('carouselWrapper');
+    const mediaItems = document.querySelectorAll('.media-item');
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    let currentIndex = 0;
+    const totalItems = carouselItems.length;
 
-    backButton.addEventListener('click', goBackToChinaMap);
-
-    // 将按钮添加到地图容器中
-    container.style.position = 'relative';
-    container.appendChild(backButton);
-}
-
-// 更新返回按钮显示状态
-function updateBackButton() {
-    const backButton = document.getElementById('map-back-button');
-    if (backButton) {
-        backButton.style.display = currentMapName !== 'china' ? 'block' : 'none';
-        backButton.innerHTML = mapStack.length > 1 ? '返回上一级' : '返回全国地图';
-    }
-}
-
-// 返回全国地图
-function goBackToChinaMap() {
-    if (mapStack.length > 0) {
-        const prevState = mapStack.pop();
-
-        if (prevState.mapName === 'china') {
-            // 返回全国地图
-            myChart.setOption(getChinaMapOption(), true);
-            currentMapName = 'china';
-            currentProvinceName = '';
-        } else {
-            // 理论上这里可以处理多级返回，但需要加载对应地图
-            // 简化处理：直接返回全国地图
-            myChart.setOption(getChinaMapOption(), true);
-            currentMapName = 'china';
-            currentProvinceName = '';
-            mapStack = []; // 清空历史栈
-        }
-    } else {
-        // 直接返回全国地图
-        myChart.setOption(getChinaMapOption(), true);
-        currentMapName = 'china';
-        currentProvinceName = '';
-    }
-    myChart.off('click')
-    myChart.on('click', handleMapClick);
-    // 更新返回按钮
-    updateBackButton();
-}
-
-// 页面加载完成后执行
-document.addEventListener('DOMContentLoaded', async function () {
-    await initChinaMap();
-});
-
-// 核心变量
-const modal = document.getElementById('mediaModal');
-const closeModal = document.getElementById('closeModal');
-const prevMedia = document.getElementById('prevMedia');
-const nextMedia = document.getElementById('nextMedia');
-const carouselWrapper = document.getElementById('carouselWrapper');
-const mediaItems = document.querySelectorAll('.media-item');
-const carouselItems = document.querySelectorAll('.carousel-item');
-let currentIndex = 0;
-const totalItems = carouselItems.length;
-
-// 打开弹窗并定位到对应媒体
-mediaItems.forEach(item => {
-    item.addEventListener('click', () => {
-        // 获取点击项的索引
-        currentIndex = parseInt(item.dataset.index);
-        // 切换到对应轮播项
-        updateCarouselPosition();
-        // 显示弹窗
-        modal.classList.add('modal-active');
-        // 禁止页面滚动
-        document.body.style.overflow = 'hidden';
+    // 打开弹窗并定位到对应媒体
+    mediaItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // 获取点击项的索引
+            currentIndex = parseInt(item.dataset.index);
+            // 切换到对应轮播项
+            updateCarouselPosition();
+            // 显示弹窗
+            modal.classList.add('modal-active');
+            // 禁止页面滚动
+            document.body.style.overflow = 'hidden';
+        });
     });
-});
 
-// 关闭弹窗
-closeModal.addEventListener('click', () => {
-    modal.classList.remove('modal-active');
-    // 恢复页面滚动
-    document.body.style.overflow = '';
-    // 暂停视频播放（避免弹窗关闭后视频继续播放）
-    const activeVideo = document.querySelector('.carousel-item video');
-    if (activeVideo) activeVideo.pause();
-});
+    // 关闭弹窗
+    closeModal.addEventListener('click', () => {
+        modal.classList.remove('modal-active');
+        // 恢复页面滚动
+        document.body.style.overflow = '';
+        // 暂停视频播放（避免弹窗关闭后视频继续播放）
+        const activeVideo = document.querySelector('.carousel-item video');
+        if (activeVideo) activeVideo.pause();
+    });
 
-// 点击弹窗背景关闭
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        closeModal.click();
+    // 点击弹窗背景关闭
+    modal.addEventListener('click', (e) =>  {
+        if (e.target === modal) {
+            closeModal.click();
+        }
+    });
+
+    // 上一个媒体
+    prevMedia.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+        updateCarouselPosition();
+        pauseActiveVideo();
+    });
+
+    // 下一个媒体
+    nextMedia.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % totalItems;
+        updateCarouselPosition();
+        pauseActiveVideo();
+    });
+
+    // 更新轮播位置
+    function updateCarouselPosition() {
+        carouselWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
     }
-});
 
-// 上一个媒体
-prevMedia.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + totalItems) % totalItems;
-    updateCarouselPosition();
-    pauseActiveVideo();
-});
+    // 暂停当前激活的视频（切换时）
+    function pauseActiveVideo() {
+        const allVideos = document.querySelectorAll('.carousel-item video');
+        allVideos.forEach(video => video.pause());
+    }
 
-// 下一个媒体
-nextMedia.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % totalItems;
-    updateCarouselPosition();
-    pauseActiveVideo();
-});
-
-// 更新轮播位置
-function updateCarouselPosition() {
-    carouselWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
 }
 
-// 暂停当前激活的视频（切换时）
-function pauseActiveVideo() {
-    const allVideos = document.querySelectorAll('.carousel-item video');
-    allVideos.forEach(video => video.pause());
-}
+function renderSwimmingList() {
+    // 定义所有需要展示的数据
+    const appData = {
+        // 游泳动态数据
+        swimmingUpdates: [
+            {
+                id: 1,
+                title: '冷池下水记录',
+                description: '没人跟我抢泳池，爽！',
+                date: '2025年12月15日',
+                resources: [
+                    {
+                        type: 'image',
+                        source: './static/img/source/12-14-1.jpg',
+                        alt: '冷池下水记录-1'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: '解锁新技能',
+                description: '练腿练出新境界，一边打腿一边刷视频！',
+                date: '2025年12月14日',
+                resources: [
+                    {
+                        type: 'video',
+                        source: './static/img/source/12-14-2.mp4',
+                        poster: './static/img/source/12-14-3.jpg',
+                        alt: '打腿练习视频'
+                    },
+                    {
+                        type: 'image',
+                        source: './static/img/source/12-14-3.jpg',
+                        alt: '练习后打卡'
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: '第n次嘉陵江冬泳',
+                description: '降温太快了，游到对岸不敢下水了',
+                date: '2025年12月6日',
+                resources: [
+                    {
+                        type: 'image',
+                        source: './static/img/source/12-6-1.jpg',
+                        alt: '嘉陵江冬泳-1'
+                    },
+                    {
+                        type: 'image',
+                        source: './static/img/source/12-6-2.jpg',
+                        alt: '嘉陵江冬泳-2'
+                    }
+                ]
+            }
+        ],
+        // 最近动态数据
+        recentActivities: [
+            {
+                id: 1,
+                icon: 'fa-tint',
+                iconBg: 'bg-blue-100',
+                iconColor: 'text-primary',
+                title: '自由泳突破50米',
+                description: '今天在泳池成功连续游完50米自由泳，比上周快了3秒，换气节奏更加稳定了！',
+                date: '2025年6月15日'
+            },
+            {
+                id: 2,
+                icon: 'fa-book',
+                iconBg: 'bg-green-100',
+                iconColor: 'text-secondary',
+                title: '阅读计划完成',
+                description: '完成了《游泳技巧大全》的阅读，学到了很多关于身体姿势和划水效率的知识。',
+                date: '2025年6月8日'
+            },
+            {
+                id: 3,
+                icon: 'fa-trophy',
+                iconBg: 'bg-purple-100',
+                iconColor: 'text-accent',
+                title: '第一次参加游泳比赛',
+                description: '虽然没有获奖，但积累了宝贵的比赛经验，看到了自己和专业选手的差距。',
+                date: '2025年5月28日'
+            }
+        ],
 
-// 键盘控制（ESC关闭，左右箭头切换）
-document.addEventListener('keydown', (e) => {
-    if (modal.classList.contains('modal-active')) {
-        switch(e.key) {
-            case 'Escape':
-                closeModal.click();
-                break;
-            case 'ArrowLeft':
-                prevMedia.click();
-                break;
-            case 'ArrowRight':
-                nextMedia.click();
-                break;
+        // 旅行记录数据
+        travelRecords: [
+            {
+                id: 1,
+                type: 'video',
+                source: '#',
+                poster: 'https://picsum.photos/id/1036/800/450',
+                title: '北京胡同文化探索',
+                description: '漫步在老北京的胡同里，感受传统四合院的建筑魅力，品尝正宗的北京烤鸭和豆汁儿，体验浓厚的京味儿文化。',
+                date: '2025年4月18日',
+                tags: ['胡同', '四合院', '北京烤鸭', '传统文化'],
+                tagBg: 'bg-blue-50',
+                tagColor: 'text-primary'
+            },
+            {
+                id: 2,
+                type: 'image',
+                images: [
+                    './static/img/source/1039-400x400.jpg',
+                    './static/img/source/1080-400x400.jpg',
+                    './static/img/source/292-400x400.jpg',
+                    './static/img/source/431-400x400.jpg'
+                ],
+                title: '成都美食与慢生活',
+                description: '成都的美食让人欲罢不能！从麻辣火锅到担担面，从夫妻肺片到龙抄手，每一道都让人回味无穷。同时，成都的慢生活节奏也让人身心放松。',
+                date: '2025年3月25日',
+                tags: ['火锅', '熊猫', '慢生活', '川菜'],
+                tagBg: 'bg-green-50',
+                tagColor: 'text-secondary'
+            }
+        ],
+
+        // 轮播媒体数据
+        carouselMedia: [
+            {
+                id: 1,
+                type: 'image',
+                source: './static/img/source/12-14-1.jpg',
+                alt: '冷池下水记录'
+            },
+            {
+                id: 2,
+                type: 'video',
+                source: './static/img/source/12-14-2.mp4',
+                alt: '解锁新技能'
+            },
+            {
+                id: 3,
+                type: 'image',
+                source: './static/img/source/12-6-1.jpg',
+                alt: '第一次参加游泳比赛'
+            }
+        ]
+    };
+
+    // 渲染游泳动态
+    function renderSwimmingUpdates() {
+        if (typeof document === 'undefined') return;
+
+        const container = document.querySelector('.space-y-6');
+        if (!container) return;
+        container.innerHTML = '';
+
+        appData.swimmingUpdates.forEach((item, index) => {
+            // 取第一个资源作为预览
+            const firstResource = item.resources[0];
+            let mediaHtml = '';
+
+            // 渲染预览媒体（图片/视频）
+            if (firstResource.type === 'image') {
+                mediaHtml = `
+                    <img src="${firstResource.source}" alt="${firstResource.alt}" class="w-full h-full object-cover transition-transform hover:scale-105">
+                  `;
+            } else if (firstResource.type === 'video') {
+                mediaHtml = `
+                    <video
+                      src="${firstResource.source}"
+                      poster="${firstResource.poster}"
+                      class="w-full h-full object-cover"
+                      controlsList="nodownload"
+                      preload="metadata"
+                    >
+                      您的浏览器不支持视频播放
+                    </video>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
+                      <i class="fa fa-play text-white text-xl"></i>
+                    </div>
+                  `;
+            }
+
+            // 渲染单个动态项（新增data-id关联动态项ID）
+            const updateHtml = `
+                  <div class="flex flex-col md:flex-row gap-4 fade-in" style="animation-delay: ${index * 0.1}s">
+                    <div class="flex-shrink-0 w-full md:w-28 h-28 md:h-24 bg-blue-50 rounded-xl overflow-hidden flex items-center justify-center cursor-pointer media-item" 
+                         data-item-id="${item.id}"  
+                         data-resource-index="0"> 
+                      ${mediaHtml}
+                    </div>
+                    <div class="flex-1">
+                      <h4 class="font-medium text-gray-900">${item.title}</h4>
+                      <p class="text-gray-600 text-sm mt-1">${item.description}</p>
+                      <p class="text-gray-400 text-xs mt-2">${item.date}</p>
+                    </div>
+                  </div>
+                `;
+            container.innerHTML += updateHtml;
+        });
+
+        // 添加查看更多按钮
+        container.innerHTML += `
+            <button class="w-full mt-4 py-2 text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors">
+              查看更多动态 <i class="fa fa-angle-right ml-1"></i>
+            </button>
+          `;
+    }
+    function bindMediaItemClick(){
+        const modal = document.getElementById('mediaModal');
+        const closeModal = document.getElementById('closeModal');
+        const prevMedia = document.getElementById('prevMedia');
+        const nextMedia = document.getElementById('nextMedia');
+        const carouselWrapper = document.getElementById('carouselWrapper');
+
+        // 当前选中的动态项ID和资源索引
+        let currentItemId = null;
+        let currentResourceIndex = 0;
+        let currentResources = []; // 当前动态项的所有资源
+
+        // 点击媒体预览打开弹窗
+        document.querySelectorAll('.media-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // 获取点击的动态项ID和初始资源索引
+                currentItemId = parseInt(item.dataset.itemId);
+                currentResourceIndex = parseInt(item.dataset.resourceIndex);
+
+                // 找到对应动态项的所有资源
+                currentResources = appData.swimmingUpdates.find(item => item.id === currentItemId).resources;
+
+                // 渲染弹窗轮播内容
+                renderCarouselForItem(currentResources);
+
+                // 切换到初始资源
+                updateCarouselPosition();
+
+                // 显示弹窗
+                modal.classList.add('modal-active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // 渲染当前动态项的轮播内容
+        function renderCarouselForItem(resources) {
+            carouselWrapper.innerHTML = '';
+            resources.forEach(resource => {
+                let mediaHtml = '';
+                if (resource.type === 'image') {
+                    mediaHtml = `<img src="${resource.source}" alt="${resource.alt}" class="max-w-full max-h-full object-contain">`;
+                } else if (resource.type === 'video') {
+                    mediaHtml = `
+          <video src="${resource.source}" poster="${resource.poster}" class="max-w-full max-h-full object-contain" controls>
+            您的浏览器不支持视频播放
+          </video>
+        `;
+                }
+                carouselWrapper.innerHTML += `
+        <div class="carousel-item w-full flex-shrink-0 h-full flex items-center justify-center">
+          ${mediaHtml}
+        </div>
+      `;
+            });
+        }
+
+        // 更新轮播位置
+        function updateCarouselPosition() {
+            carouselWrapper.style.transform = `translateX(-${currentResourceIndex * 100}%)`;
+        }
+
+        // 上一个资源
+        prevMedia.addEventListener('click', () => {
+            currentResourceIndex = (currentResourceIndex - 1 + currentResources.length) % currentResources.length;
+            updateCarouselPosition();
+            pauseActiveVideo();
+        });
+
+        // 下一个资源
+        nextMedia.addEventListener('click', () => {
+            currentResourceIndex = (currentResourceIndex + 1) % currentResources.length;
+            updateCarouselPosition();
+            pauseActiveVideo();
+        });
+
+        // 关闭弹窗
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('modal-active');
+            document.body.style.overflow = '';
+            pauseActiveVideo();
+        });
+
+        // 暂停当前视频
+        function pauseActiveVideo() {
+            document.querySelectorAll('.carousel-item video').forEach(video => video.pause());
         }
     }
-});
+
+    // 渲染最近动态
+    function renderRecentActivities() {
+        // 增加环境判断：仅浏览器环境执行
+        if (typeof document === 'undefined') return;
+
+        const container = document.querySelector('.space-y-6.fade-in');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        appData.recentActivities.forEach((item, index) => {
+            const activityHtml = `
+          <div class="flex gap-4 fade-in" style="animation-delay: ${index * 0.1}s">
+            <div class="flex-shrink-0 w-12 h-12 ${item.iconBg} rounded-full flex items-center justify-center">
+              <i class="fa ${item.icon} ${item.iconColor} text-xl"></i>
+            </div>
+            <div class="flex-1">
+              <h4 class="font-medium text-gray-900">${item.title}</h4>
+              <p class="text-gray-600 text-sm mt-1">${item.description}</p>
+              <p class="text-gray-400 text-xs mt-2">${item.date}</p>
+            </div>
+          </div>
+        `;
+
+            container.innerHTML += activityHtml;
+        });
+
+        // 添加查看更多按钮
+        container.innerHTML += `
+<button class="w-full mt-4 py-2 text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors">
+  查看更多动态 <i class="fa fa-angle-right ml-1"></i>
+</button>
+`;
+    }
+
+    // 渲染旅行记录
+    function renderTravelRecords() {
+        // 增加环境判断：仅浏览器环境执行
+        if (typeof document === 'undefined') return;
+
+        const container = document.querySelector('.space-y-8');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        appData.travelRecords.forEach(item => {
+            let mediaHtml = '';
+
+            if (item.type === 'video') {
+                mediaHtml = `
+                <div class="md:w-1/2 relative">
+                  <video class="w-full h-full object-cover" controls poster="${item.poster}">
+                    <source src="${item.source}" type="video/mp4">
+                    您的浏览器不支持视频播放
+                  </video>
+                  <div class="absolute top-4 left-4 bg-primary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
+                    视频动态
+                  </div>
+                </div>
+              `;
+            } else if (item.type === 'image') {
+                mediaHtml = `
+                    <div class="md:w-1/2">
+                      <div class="grid grid-cols-2 gap-1 h-full">
+                        ${item.images.map(img => `<img src="${img}" alt="${item.title}" class="w-full h-full object-cover">`).join('')}
+                      </div>
+                      <div class="absolute top-4 right-4 bg-secondary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
+                        图片动态
+                      </div>
+                    </div>
+                  `;
+            }
+
+            // 生成标签HTML
+            const tagsHtml = item.tags.map(tag => `
+              <span class="${item.tagBg} ${item.tagColor} text-xs py-1 px-2 rounded-full">${tag}</span>
+            `).join('');
+
+            const recordHtml = `
+              <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover">
+                <div class="md:flex ${item.type === 'image' ? 'flex-row-reverse' : ''}">
+                  ${mediaHtml}
+                  <div class="md:w-1/2 p-6 ${item.type === 'image' ? '' : 'relative'}">
+                    <div class="flex justify-between items-start mb-4">
+                      <h4 class="text-lg font-semibold">${item.title}</h4>
+                      <span class="text-gray-400 text-sm">${item.date}</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">${item.description}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                      ${tagsHtml}
+                    </div>
+                    <a href="#" class="inline-flex items-center ${item.type === 'image' ? 'text-secondary' : 'text-primary'} font-medium hover:underline">
+                      ${item.type === 'image' ? '查看更多照片 <i class="fa fa-images ml-1"></i>' : '阅读完整游记 <i class="fa fa-long-arrow-right ml-1"></i>'}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `;
+
+            container.innerHTML += recordHtml;
+        });
+
+        // 添加加载更多按钮
+        container.innerHTML += `
+        <div class="text-center">
+          <button class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 font-medium py-3 px-8 rounded-full transition-all shadow-md hover:shadow-lg">
+            加载更多动态 <i class="fa fa-refresh ml-2"></i>
+          </button>
+        </div>
+        `;
+    }
+
+    // 渲染轮播媒体
+    function renderCarousel() {
+        // 增加环境判断：仅浏览器环境执行
+        if (typeof document === 'undefined') return;
+
+        const container = document.getElementById('carouselWrapper');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        appData.carouselMedia.forEach(item => {
+            let mediaHtml = '';
+
+            if (item.type === 'image') {
+                mediaHtml = `<img src="${item.source}" alt="${item.alt}" class="max-w-full max-h-full object-contain">`;
+            } else if (item.type === 'video') {
+                mediaHtml = `
+                    <video src="${item.source}" class="max-w-full max-h-full object-contain" controls>
+                      您的浏览器不支持视频播放
+                    </video>
+                  `;
+            }
+
+            const carouselItem = `
+              <div class="carousel-item w-full flex-shrink-0 h-full flex items-center justify-center">
+                ${mediaHtml}
+              </div>
+            `;
+
+            container.innerHTML += carouselItem;
+        });
+    }
+
+    renderSwimmingUpdates();
+    bindMediaItemClick();
+    renderRecentActivities();
+    renderTravelRecords();
+    renderCarousel();
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', async function() {
+        await renderSwimmingModal();
+        await renderSwimmingList()
+        await initChinaMap();
+
+        // 键盘控制（ESC关闭，左右箭头切换）
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('mediaModal');
+            // 1. 先判断弹窗是否激活，未激活直接返回
+            if (!modal || !modal.classList.contains('modal-active')) return;
+
+            let closeModal = document.getElementById('closeModal');
+            let prevMedia = document.getElementById('prevMedia');
+            let nextMedia = document.getElementById('nextMedia');
+
+            // 2. 阻止默认行为，避免干扰
+            if (['Escape', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+            }
+
+            console.log(closeModal, prevMedia, nextMedia, e.key)
+            console.log(e.key === 'Escape',e.key === 'ArrowLeft',e.key === 'ArrowRight')
+
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+
+            if(e.key === 'Escape'){
+                closeModal.dispatchEvent(clickEvent);
+            } else if (e.key === 'ArrowLeft') {
+                prevMedia.dispatchEvent(clickEvent);
+            } else if (e.key === 'ArrowRight') {
+                nextMedia.dispatchEvent(clickEvent);
+            }
+        });
+    });
+} else {
+    console.log('当前运行在Node.js环境，跳过DOM渲染逻辑');
+}
