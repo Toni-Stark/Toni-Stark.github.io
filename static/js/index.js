@@ -515,9 +515,6 @@ async function switchToProvinceMap(provinceName) {
 
 // 构建省份JSON文件URL
 function getProvinceJsonUrl(provinceName) {
-    // 这里需要根据你的文件存储结构来构建URL
-    // 假设省份JSON文件存储在 provinces/ 目录下
-
     // 省份名称映射到文件名（去掉特殊字符）
     const fileNameMap = {
         '北京': 'beijing',
@@ -731,4 +728,88 @@ function goBackToChinaMap() {
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', async function () {
     await initChinaMap();
+});
+
+// 核心变量
+const modal = document.getElementById('mediaModal');
+const closeModal = document.getElementById('closeModal');
+const prevMedia = document.getElementById('prevMedia');
+const nextMedia = document.getElementById('nextMedia');
+const carouselWrapper = document.getElementById('carouselWrapper');
+const mediaItems = document.querySelectorAll('.media-item');
+const carouselItems = document.querySelectorAll('.carousel-item');
+let currentIndex = 0;
+const totalItems = carouselItems.length;
+
+// 打开弹窗并定位到对应媒体
+mediaItems.forEach(item => {
+    item.addEventListener('click', () => {
+        // 获取点击项的索引
+        currentIndex = parseInt(item.dataset.index);
+        // 切换到对应轮播项
+        updateCarouselPosition();
+        // 显示弹窗
+        modal.classList.add('modal-active');
+        // 禁止页面滚动
+        document.body.style.overflow = 'hidden';
+    });
+});
+
+// 关闭弹窗
+closeModal.addEventListener('click', () => {
+    modal.classList.remove('modal-active');
+    // 恢复页面滚动
+    document.body.style.overflow = '';
+    // 暂停视频播放（避免弹窗关闭后视频继续播放）
+    const activeVideo = document.querySelector('.carousel-item video');
+    if (activeVideo) activeVideo.pause();
+});
+
+// 点击弹窗背景关闭
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeModal.click();
+    }
+});
+
+// 上一个媒体
+prevMedia.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+    updateCarouselPosition();
+    pauseActiveVideo();
+});
+
+// 下一个媒体
+nextMedia.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % totalItems;
+    updateCarouselPosition();
+    pauseActiveVideo();
+});
+
+// 更新轮播位置
+function updateCarouselPosition() {
+    carouselWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
+
+// 暂停当前激活的视频（切换时）
+function pauseActiveVideo() {
+    const allVideos = document.querySelectorAll('.carousel-item video');
+    allVideos.forEach(video => video.pause());
+}
+
+// 键盘控制（ESC关闭，左右箭头切换）
+document.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('modal-active')) {
+        switch(e.key) {
+            case 'Escape':
+                closeModal.click();
+                break;
+            case 'ArrowLeft':
+                prevMedia.click();
+                break;
+            case 'ArrowRight':
+                nextMedia.click();
+                break;
+        }
+    }
 });
