@@ -837,59 +837,6 @@ function renderSwimmingList() {
             }
         ],
 
-        // 旅行记录数据
-        travelRecords: [
-            {
-                id: 1,
-                type: 'video',
-                source: '#',
-                poster: 'https://picsum.photos/id/1036/800/450',
-                title: '北京胡同文化探索',
-                description: '漫步在老北京的胡同里，感受传统四合院的建筑魅力，品尝正宗的北京烤鸭和豆汁儿，体验浓厚的京味儿文化。',
-                date: '2025年4月18日',
-                tags: ['胡同', '四合院', '北京烤鸭', '传统文化'],
-                tagBg: 'bg-blue-50',
-                tagColor: 'text-primary'
-            },
-            {
-                id: 2,
-                type: 'image',
-                images: [
-                    './static/img/source/1039-400x400.jpg',
-                    './static/img/source/1080-400x400.jpg',
-                    './static/img/source/292-400x400.jpg',
-                    './static/img/source/431-400x400.jpg'
-                ],
-                title: '成都美食与慢生活',
-                description: '成都的美食让人欲罢不能！从麻辣火锅到担担面，从夫妻肺片到龙抄手，每一道都让人回味无穷。同时，成都的慢生活节奏也让人身心放松。',
-                date: '2025年3月25日',
-                tags: ['火锅', '熊猫', '慢生活', '川菜'],
-                tagBg: 'bg-green-50',
-                tagColor: 'text-secondary'
-            }
-        ],
-
-        // 轮播媒体数据
-        carouselMedia: [
-            {
-                id: 1,
-                type: 'image',
-                source: './static/img/source/12-14-1.jpg',
-                alt: '冷池下水记录'
-            },
-            {
-                id: 2,
-                type: 'video',
-                source: './static/img/source/12-14-2.mp4',
-                alt: '解锁新技能'
-            },
-            {
-                id: 3,
-                type: 'image',
-                source: './static/img/source/12-6-1.jpg',
-                alt: '第一次参加游泳比赛'
-            }
-        ]
     };
 
     // 渲染游泳动态
@@ -1069,127 +1016,250 @@ function renderSwimmingList() {
 
         // 添加查看更多按钮
         container.innerHTML += `
-<button class="w-full mt-4 py-2 text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors">
-  查看更多动态 <i class="fa fa-angle-right ml-1"></i>
-</button>
-`;
-    }
-
-    // 渲染旅行记录
-    function renderTravelRecords() {
-        // 增加环境判断：仅浏览器环境执行
-        if (typeof document === 'undefined') return;
-
-        const container = document.querySelector('.space-y-8');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        appData.travelRecords.forEach(item => {
-            let mediaHtml = '';
-
-            if (item.type === 'video') {
-                mediaHtml = `
-                <div class="md:w-1/2 relative">
-                  <video class="w-full h-full object-cover" controls poster="${item.poster}">
-                    <source src="${item.source}" type="video/mp4">
-                    您的浏览器不支持视频播放
-                  </video>
-                  <div class="absolute top-4 left-4 bg-primary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
-                    视频动态
-                  </div>
-                </div>
-              `;
-            } else if (item.type === 'image') {
-                mediaHtml = `
-                    <div class="md:w-1/2">
-                      <div class="grid grid-cols-2 gap-1 h-full">
-                        ${item.images.map(img => `<img src="${img}" alt="${item.title}" class="w-full h-full object-cover">`).join('')}
-                      </div>
-                      <div class="absolute top-4 right-4 bg-secondary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
-                        图片动态
-                      </div>
-                    </div>
-                  `;
-            }
-
-            // 生成标签HTML
-            const tagsHtml = item.tags.map(tag => `
-              <span class="${item.tagBg} ${item.tagColor} text-xs py-1 px-2 rounded-full">${tag}</span>
-            `).join('');
-
-            const recordHtml = `
-              <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover">
-                <div class="md:flex ${item.type === 'image' ? 'flex-row-reverse' : ''}">
-                  ${mediaHtml}
-                  <div class="md:w-1/2 p-6 ${item.type === 'image' ? '' : 'relative'}">
-                    <div class="flex justify-between items-start mb-4">
-                      <h4 class="text-lg font-semibold">${item.title}</h4>
-                      <span class="text-gray-400 text-sm">${item.date}</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">${item.description}</p>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                      ${tagsHtml}
-                    </div>
-                    <a href="#" class="inline-flex items-center ${item.type === 'image' ? 'text-secondary' : 'text-primary'} font-medium hover:underline">
-                      ${item.type === 'image' ? '查看更多照片 <i class="fa fa-images ml-1"></i>' : '阅读完整游记 <i class="fa fa-long-arrow-right ml-1"></i>'}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            `;
-
-            container.innerHTML += recordHtml;
-        });
-
-        // 添加加载更多按钮
-        container.innerHTML += `
-        <div class="text-center">
-          <button class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 font-medium py-3 px-8 rounded-full transition-all shadow-md hover:shadow-lg">
-            加载更多动态 <i class="fa fa-refresh ml-2"></i>
-          </button>
-        </div>
+            <button class="w-full mt-4 py-2 text-primary border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors">
+              查看更多动态 <i class="fa fa-angle-right ml-1"></i>
+            </button>
         `;
-    }
-
-    // 渲染轮播媒体
-    function renderCarousel() {
-        // 增加环境判断：仅浏览器环境执行
-        if (typeof document === 'undefined') return;
-
-        const container = document.getElementById('carouselWrapper');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        appData.carouselMedia.forEach(item => {
-            let mediaHtml = '';
-
-            if (item.type === 'image') {
-                mediaHtml = `<img src="${item.source}" alt="${item.alt}" class="max-w-full max-h-full object-contain">`;
-            } else if (item.type === 'video') {
-                mediaHtml = `
-                    <video src="${item.source}" class="max-w-full max-h-full object-contain" controls>
-                      您的浏览器不支持视频播放
-                    </video>
-                  `;
-            }
-
-            const carouselItem = `
-              <div class="carousel-item w-full flex-shrink-0 h-full flex items-center justify-center">
-                ${mediaHtml}
-              </div>
-            `;
-
-            container.innerHTML += carouselItem;
-        });
     }
 
     renderSwimmingUpdates();
     bindMediaItemClick();
     renderRecentActivities();
-    renderTravelRecords();
-    renderCarousel();
+}
+
+// 2. 生成卡片HTML的函数
+const generateData = {
+    modalId: "travelModal",
+    modalCloseId: "modalClose",
+    modalVideoId: "modalVideo",
+    modalTitleId: "modalTitle",
+    modalDateId: "modalDate",
+    textContentId: "textContent",
+    openModalBtnId: "openModalBtn",
+    videoPoster: "./static/img/source/daojiao.jpg",
+    videoSrc: "./static/img/source/daojiao.mp4",
+    videoFallback: "您的浏览器不支持视频播放",
+    videoLabel: "视频动态",
+
+    title: "沙坪坝道教协会",
+    date: "2025年4月18日",
+    description: "面嘉陵，倚红岩，殿宇鎏金暖夜，对岸灯华浸江风",
+    tags: ["祈福", "登山", "感受生活"],
+    linkText: "阅读完整游记",
+    contextList: [
+        "暮敛江声，余独赴沙区道协。其地背倚红岩，前临嘉陵，江波如练，静卧暮色。",
+        "入殿，鎏灯晕暖覆飞檐，殿内玉皇、王母圣像巍峨，金容肃穆，俯瞰众生，凛然含慈。檐下香案烛明，烟缕轻萦梁间，悄无声息。",
+        "余趋案拈香，就烛引燃，青烟婉婉入夜色。凭栏伫立，俄见江间双鸟相逐渡江，羽沾岸灯碎影，贴波徐飞，依依不相离。",
+        "心下忽微动，低眉默祷于圣前：愿灵祉垂护，令佳人安适，如双鸟栖枝，新息无忧。",
+        "遥睇对岸灯华织锦，流光浸波，晚风携林叶轻吟，扑落襟袖。白日案牍之劳、尘嚣之扰，尽随江风散入圣境清宁。胸臆间惟余灯影江声、圣像慈光，及双鸟渡波的柔痕，与这静穆相融。",
+        "俄而月隐梢头，夜露沾衣始觉凉，乃徐步辞归。回望殿宇，鎏灯映红岩，江风送浅香。此夜圣境之静、波影之柔、祈愿之深，已深印襟怀，久不能忘。"
+    ],
+    timePoints: [0, 5, 10, 15]
+};
+
+function generateCardHTML(data) {
+    const tagList = data.tags.map(tag =>
+        `<span class="bg-blue-50 text-primary text-xs py-1 px-2 rounded-full">${tag}</span>`
+    ).join('');
+
+    return `
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover">
+            <div class="md:flex">
+                <div class="md:w-1/2 relative">
+                    <video class="w-full h-full object-cover" controls poster="${data.videoPoster}">
+                        <source src="${data.videoSrc}" type="video/mp4">
+                        ${data.videoFallback}
+                    </video>
+                    <div class="absolute top-4 left-4 bg-primary/90 text-white text-xs font-medium py-1 px-3 rounded-full">
+                        ${data.videoLabel}
+                    </div>
+                </div>
+                <div class="md:w-1/2 p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-lg font-semibold">${data.title}</h4>
+                        <span class="text-gray-400 text-sm">${data.date}</span>
+                    </div>
+                    <p class="text-gray-600 mb-4">${data.description}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">${tagList}</div>
+                    <a href="javascript:;" class="inline-flex items-center text-primary font-medium hover:underline" id="${data.openModalBtnId}">
+                        ${data.linkText} <i class="fa fa-long-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function generateModalHTML(data) {
+    return `
+        <div class="modal-overlay" id="${data.modalId}">
+            <div class="modal-container">
+                <!-- 弹窗顶部 -->
+                <div class="modal-header">
+                    <div>
+                        <h3 class="text-xl font-semibold text-white" id="${data.modalTitleId}">${data.title}</h3>
+                        <p class="text-sm text-gray-300 mt-1" id="${data.modalDateId}">${data.date}</p>
+                    </div>
+                    <div class="modal-close" id="${data.modalCloseId}">
+                        <i class="fa fa-times"></i>
+                    </div>
+                </div>
+                
+                <!-- 视频背景 -->
+                <div class="modal-video">
+                    <video id="${data.modalVideoId}" controls poster="${data.videoPoster}">
+                        <source src="${data.videoSrc}" type="video/mp4">
+                        ${data.videoFallback}
+                    </video>
+                </div>
+                
+                <!-- 文本内容层 -->
+                <div class="text-content" id="${data.textContentId}">
+                    <!-- 段落由JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function initModalLogic(data) {
+    // 1. 获取弹窗元素（动态生成后才能获取）
+    const modal = document.getElementById(data.modalId);
+    const modalVideo = document.getElementById(data.modalVideoId);
+    const textContent = document.getElementById(data.textContentId);
+
+    // 2. 生成文本段落
+    textContent.innerHTML = '';
+    data.contextList.forEach((paragraph, index) => {
+        const p = document.createElement('p');
+        p.className = 'text-paragraph';
+        p.dataset.index = index;
+        p.textContent = paragraph;
+        textContent.appendChild(p);
+    });
+
+    // 3. 视频播放时间监听
+    modalVideo.addEventListener('timeupdate', function() {
+        const currentTime = Math.floor(this.currentTime);
+        data.timePoints.forEach((time, index) => {
+            const paragraph = document.querySelector(`.text-paragraph[data-index="${index}"]`);
+            if (currentTime >= time && !paragraph.classList.contains('active')) {
+                paragraph.classList.add('active');
+            }
+        });
+    });
+
+    // 4. 弹窗交互逻辑
+    const openBtn = document.getElementById(data.openModalBtnId);
+    const closeBtn = document.getElementById(data.modalCloseId);
+
+    // 打开弹窗
+    openBtn.addEventListener('click', function() {
+        modal.classList.add('active');
+        modalVideo.play().catch(err => console.log('视频自动播放失败：', err));
+    });
+
+    // 关闭弹窗
+    function closeModal() {
+        modal.classList.remove('active');
+        modalVideo.pause();
+        document.querySelectorAll('.text-paragraph').forEach(p => p.classList.remove('active'));
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => e.target === modal && closeModal());
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && modal.classList.contains('active') && closeModal());
+}
+
+
+function initModal() {
+    // 1. 设置弹窗标题和时间
+    let data = generateData;
+    document.getElementById('modalTitle').textContent = data.title;
+    document.getElementById('modalDate').textContent = data.date;
+
+    // 2. 设置弹窗视频
+    const modalVideo = document.getElementById('modalVideo');
+    modalVideo.poster = data.videoPoster;
+    modalVideo.querySelector('source').src = data.videoSrc;
+    modalVideo.load(); // 重新加载视频配置
+
+    // 3. 生成文本段落（初始隐藏）
+    const textContent = document.getElementById('textContent');
+    textContent.innerHTML = ''; // 清空原有内容
+    data.contextList.forEach((paragraph, index) => {
+        const p = document.createElement('p');
+        p.className = 'text-paragraph'; // 默认隐藏样式
+        p.dataset.index = index; // 标记段落索引
+        p.textContent = paragraph;
+        textContent.appendChild(p);
+    });
+
+    // 4. 监听视频播放时间，控制段落渐显
+    modalVideo.addEventListener('timeupdate', function() {
+        const currentTime = Math.floor(this.currentTime); // 获取当前播放秒数（取整）
+        data.timePoints.forEach((time, index) => {
+            const paragraph = document.querySelector(`.text-paragraph[data-index="${index}"]`);
+            // 播放时间达到节点且段落未激活 → 显示段落
+            if (currentTime >= time && !paragraph.classList.contains('active')) {
+                paragraph.classList.add('active');
+            }
+        });
+    });
+
+    // 5. 视频重置时（暂停/关闭），重置段落显示状态
+    modalVideo.addEventListener('pause', function() {
+        // 可选：暂停时不重置，仅关闭弹窗时重置
+    });
+}
+
+// ===================== 弹窗交互事件 =====================
+function initModalEvents() {
+    const modal = document.getElementById('travelModal');
+    const openBtn = document.getElementById('openModalBtn');
+    const closeBtn = document.getElementById('modalClose');
+    const modalVideo = document.getElementById('modalVideo');
+
+    // 1. 打开弹窗
+    openBtn?.addEventListener('click', function() {
+        modal.classList.add('active'); // 显示弹窗
+        // 视频自动播放（需用户交互触发，符合浏览器策略）
+        modalVideo.play().catch(err => console.log('视频自动播放失败：', err));
+    });
+
+    // 2. 关闭弹窗（复用函数）
+    function closeModal() {
+        modal.classList.remove('active'); // 隐藏弹窗
+        modalVideo.pause(); // 暂停视频
+        // 重置所有段落为隐藏状态
+        document.querySelectorAll('.text-paragraph').forEach(p => {
+            p.classList.remove('active');
+        });
+    }
+
+    // 点击关闭按钮关闭弹窗
+    closeBtn.addEventListener('click', closeModal);
+    // 点击遮罩层关闭弹窗
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+    // 按ESC键关闭弹窗
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+}
+
+// 3. 挂载卡片到页面
+function renderCard() {
+    const container = document.getElementById('vid_line');
+    if (container) {
+        container.innerHTML = generateCardHTML(generateData);
+    }
+    document.body.insertAdjacentHTML('beforeend', generateModalHTML(generateData));
+
+    initModalLogic(generateData);
 }
 
 if (typeof document !== 'undefined') {
@@ -1197,7 +1267,7 @@ if (typeof document !== 'undefined') {
         await renderSwimmingModal();
         await renderSwimmingList()
         await initChinaMap();
-
+        await renderCard()
         // 键盘控制（ESC关闭，左右箭头切换）
         document.addEventListener('keydown', (e) => {
             const modal = document.getElementById('mediaModal');
