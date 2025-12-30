@@ -678,26 +678,6 @@ async function initChinaMap(){
 
     // 页面加载完成后初始化
     initMapThemes();
-    // 平滑滚动
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                // 关闭移动端菜单
-                document.getElementById('mobile-menu').classList.add('hidden');
-
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
 }
 
 async function renderSwimmingModal(){
@@ -916,7 +896,7 @@ function renderSwimmingList() {
     function renderSwimmingUpdates() {
         if (typeof document === 'undefined') return;
 
-        const container = document.querySelector('.space-y-6');
+        const container = document.querySelector('.swim');
         if (!container) return;
         container.innerHTML = '';
 
@@ -1065,7 +1045,7 @@ function renderSwimmingList() {
         // 增加环境判断：仅浏览器环境执行
         if (typeof document === 'undefined') return;
 
-        const container = document.querySelector('.space-y-6.fade-in');
+        const container = document.querySelector('.new');
         if (!container) return;
 
         container.innerHTML = '';
