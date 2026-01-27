@@ -1273,7 +1273,23 @@ const stocksData = {
             shares: 1000,           // 持有股数
             costPrice: 12.50,       // 成本价
             currentPrice: 15.80,    // 当前价格
-            buyDate: '2025-01-15'   // 买入日期
+            buyDate: '2025-01-15',  // 买入日期
+            targetPrices: {
+                short: 16.50,       // 短期目标价（1-3个月）
+                medium: 18.00,      // 中期目标价（3-6个月）
+                long: 20.00         // 长期目标价（6-12个月）
+            },
+            priceHistory: [12.50, 12.80, 13.20, 13.50, 14.00, 14.50, 15.00, 15.20, 15.50, 15.80],
+            investmentReason: {
+                title: '投资思路',
+                points: [
+                    '估值合理：当前PE处于历史低位，安全边际较高',
+                    '基本面改善：不良贷款率持续下降，资产质量改善',
+                    '政策利好：金融改革深化，银行股有望重估',
+                    '分红稳定：股息率超过4%，适合长期价值投资'
+                ],
+                risk: '关注房地产市场波动对资产质量的影响'
+            }
         },
         {
             code: '600519',
@@ -1281,7 +1297,23 @@ const stocksData = {
             shares: 50,
             costPrice: 1680.00,
             currentPrice: 1850.00,
-            buyDate: '2024-12-20'
+            buyDate: '2024-12-20',
+            targetPrices: {
+                short: 1900.00,
+                medium: 2000.00,
+                long: 2200.00
+            },
+            priceHistory: [1680, 1700, 1720, 1750, 1780, 1800, 1820, 1830, 1840, 1850],
+            investmentReason: {
+                title: '投资思路',
+                points: [
+                    '品牌护城河：茅台品牌价值无可替代，定价权强',
+                    '稀缺性：产能增长有限，供不应求局面长期存在',
+                    '消费升级：高端白酒市场持续扩容',
+                    '业绩确定性：营收和利润增长稳健，现金流充沛'
+                ],
+                risk: '估值较高，需要时间消化，短期可能波动'
+            }
         },
         {
             code: '000858',
@@ -1289,19 +1321,59 @@ const stocksData = {
             shares: 200,
             costPrice: 165.00,
             currentPrice: 172.50,
-            buyDate: '2025-01-10'
+            buyDate: '2025-01-10',
+            targetPrices: {
+                short: 180.00,
+                medium: 195.00,
+                long: 210.00
+            },
+            priceHistory: [165, 167, 168, 169, 170, 171, 172, 172.5, 172.8, 172.5],
+            investmentReason: {
+                title: '投资思路',
+                points: [
+                    '性价比优势：相比茅台估值更低，成长空间大',
+                    '品牌升级：第八代五粮液定位高端，提升盈利能力',
+                    '渠道改革：直营+经销模式优化，渠道控制力增强',
+                    '区域扩张：全国化布局加速，市场份额提升'
+                ],
+                risk: '竞争激烈，需关注市场份额和价格体系稳定性'
+            }
         }
     ],
 
     // 交易历史记录
     tradeHistory: [
         {
+            date: '2025-01-27',
+            action: '买入',
+            code: '000001',
+            name: '平安银行',
+            price: 15.80,
+            shares: 500
+        },
+        {
+            date: '2025-01-20',
+            action: '卖出',
+            code: '000858',
+            name: '五粮液',
+            price: 173.00,
+            shares: 100
+        },
+        {
             date: '2025-01-15',
             action: '买入',
             code: '000001',
             name: '平安银行',
             price: 12.50,
-            shares: 1000
+            shares: 500
+        },
+        {
+            date: '2025-01-12',
+            action: '买入',
+            code: '600519',
+            name: '贵州茅台',
+            price: 1800.00,
+            shares: 25
         },
         {
             date: '2025-01-10',
@@ -1309,7 +1381,23 @@ const stocksData = {
             code: '000858',
             name: '五粮液',
             price: 165.00,
+            shares: 300
+        },
+        {
+            date: '2025-01-05',
+            action: '买入',
+            code: '000001',
+            name: '平安银行',
+            price: 13.20,
             shares: 200
+        },
+        {
+            date: '2024-12-28',
+            action: '卖出',
+            code: '600519',
+            name: '贵州茅台',
+            price: 1750.00,
+            shares: 10
         },
         {
             date: '2024-12-20',
@@ -1317,7 +1405,23 @@ const stocksData = {
             code: '600519',
             name: '贵州茅台',
             price: 1680.00,
-            shares: 50
+            shares: 35
+        },
+        {
+            date: '2024-12-15',
+            action: '买入',
+            code: '000858',
+            name: '五粮液',
+            price: 168.00,
+            shares: 150
+        },
+        {
+            date: '2024-12-10',
+            action: '买入',
+            code: '000001',
+            name: '平安银行',
+            price: 12.00,
+            shares: 300
         }
     ]
 };
@@ -1540,6 +1644,233 @@ function initStockRecord() {
         profitRateElement.className = `text-xl font-bold ${profitColor}`;
     }
 
+    // 渲染单只股票的价格走势图
+    function renderStockChart(containerId, stock) {
+        const chartDom = document.getElementById(containerId);
+        if (!chartDom) return;
+
+        const myChart = echarts.init(chartDom);
+
+        // 生成日期标签
+        const dates = stock.priceHistory.map((_, index) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (stock.priceHistory.length - 1 - index));
+            return `${date.getMonth() + 1}/${date.getDate()}`;
+        });
+
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: function(params) {
+                    let result = `${params[0].axisValue}<br/>`;
+                    params.forEach(param => {
+                        result += `${param.marker}${param.seriesName}: ¥${param.value.toFixed(2)}<br/>`;
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                data: ['当前价', '短期目标', '中期目标', '长期目标'],
+                top: 0,
+                textStyle: {
+                    fontSize: 10
+                }
+            },
+            grid: {
+                left: '8%',
+                right: '5%',
+                top: '20%',
+                bottom: '10%'
+            },
+            xAxis: {
+                type: 'category',
+                data: dates,
+                axisLabel: {
+                    fontSize: 9,
+                    rotate: 30
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '¥{value}',
+                    fontSize: 9
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#f5f5f5'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '当前价',
+                    type: 'line',
+                    data: stock.priceHistory,
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 4,
+                    lineStyle: {
+                        color: '#3B82F6',
+                        width: 2
+                    },
+                    itemStyle: {
+                        color: '#3B82F6'
+                    }
+                },
+                {
+                    name: '短期目标',
+                    type: 'line',
+                    data: new Array(stock.priceHistory.length).fill(stock.targetPrices.short),
+                    lineStyle: {
+                        color: '#10B981',
+                        width: 2,
+                        type: 'dashed'
+                    },
+                    symbol: 'none'
+                },
+                {
+                    name: '中期目标',
+                    type: 'line',
+                    data: new Array(stock.priceHistory.length).fill(stock.targetPrices.medium),
+                    lineStyle: {
+                        color: '#F59E0B',
+                        width: 2,
+                        type: 'dashed'
+                    },
+                    symbol: 'none'
+                },
+                {
+                    name: '长期目标',
+                    type: 'line',
+                    data: new Array(stock.priceHistory.length).fill(stock.targetPrices.long),
+                    lineStyle: {
+                        color: '#EF4444',
+                        width: 2,
+                        type: 'dashed'
+                    },
+                    symbol: 'none'
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+
+    // 显示投资思路弹窗
+    function showInvestmentPopup(stock, targetElement) {
+        // 移除已存在的弹窗
+        const existingPopup = document.querySelector('.investment-popup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+
+        // 创建弹窗
+        const popup = document.createElement('div');
+        popup.className = 'investment-popup';
+        popup.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h4 class="text-lg font-bold text-dark">${stock.name}</h4>
+                    <p class="text-xs text-gray-500 mt-1">${stock.investmentReason.title}</p>
+                </div>
+                <button class="close-popup text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <i class="fa fa-lightbulb-o text-amber-500 mr-2"></i>
+                        买入理由
+                    </h5>
+                    <ul class="space-y-2">
+                        ${stock.investmentReason.points.map(point => `
+                            <li class="text-sm text-gray-600 flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mr-2 mt-0.5 flex-shrink-0"></i>
+                                <span>${point}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+
+                <div class="border-t pt-3">
+                    <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <i class="fa fa-exclamation-triangle text-orange-500 mr-2"></i>
+                        风险提示
+                    </h5>
+                    <p class="text-sm text-gray-600">${stock.investmentReason.risk}</p>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+
+        // 计算弹窗位置
+        const rect = targetElement.getBoundingClientRect();
+        const popupRect = popup.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        let top, left;
+        let arrowClass = 'arrow-top';
+
+        // 优先在元素下方显示
+        if (rect.bottom + popupRect.height + 20 < viewportHeight) {
+            top = rect.bottom + 10;
+            arrowClass = 'arrow-top';
+        } else if (rect.top - popupRect.height - 20 > 0) {
+            // 如果下方空间不够，尝试上方
+            top = rect.top - popupRect.height - 10;
+            arrowClass = 'arrow-bottom';
+        } else {
+            // 如果上下都不够，显示在视口中央
+            top = (viewportHeight - popupRect.height) / 2;
+            arrowClass = '';
+        }
+
+        // 水平居中对齐点击元素
+        left = rect.left + (rect.width / 2) - (popupRect.width / 2);
+
+        // 确保不超出视口
+        if (left < 20) left = 20;
+        if (left + popupRect.width > viewportWidth - 20) {
+            left = viewportWidth - popupRect.width - 20;
+        }
+
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        popup.classList.add(arrowClass);
+
+        // 显示弹窗
+        setTimeout(() => {
+            popup.classList.add('active');
+        }, 10);
+
+        // 关闭按钮事件
+        popup.querySelector('.close-popup').addEventListener('click', () => {
+            popup.classList.remove('active');
+            setTimeout(() => popup.remove(), 300);
+        });
+
+        // 点击外部关闭
+        const closePopup = (e) => {
+            if (!popup.contains(e.target) && !targetElement.contains(e.target)) {
+                popup.classList.remove('active');
+                setTimeout(() => popup.remove(), 300);
+                document.removeEventListener('click', closePopup);
+            }
+        };
+
+        setTimeout(() => {
+            document.addEventListener('click', closePopup);
+        }, 100);
+    }
+
     // 渲染股票卡片
     function renderStockCards() {
         const carousel = document.getElementById('stock-carousel');
@@ -1554,51 +1885,83 @@ function initStockRecord() {
             const profitBg = result.profit >= 0 ? 'bg-red-50' : 'bg-green-50';
             const profitSign = result.profit >= 0 ? '+' : '';
 
-            // 创建股票卡片
+            // 创建股票卡片（左右结构）
             const card = document.createElement('div');
             card.className = 'w-full flex-shrink-0 px-2';
             card.innerHTML = `
-                <div class="h-full flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 class="text-2xl font-bold text-dark">${stock.name}</h4>
-                                <p class="text-gray-500 text-sm mt-1">${stock.code}</p>
+                <div class="h-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 左侧：基本信息 -->
+                    <div class="flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h4 class="text-xl font-bold text-dark stock-name-clickable" data-stock-index="${index}">
+                                        ${stock.name}
+                                        <i class="fa fa-info-circle text-primary text-sm ml-1"></i>
+                                    </h4>
+                                    <p class="text-gray-500 text-xs mt-1">${stock.code}</p>
+                                </div>
+                                <span class="${profitBg} ${profitColor} px-2 py-1 rounded-full text-xs font-medium">
+                                    ${profitSign}${result.profitRate.toFixed(2)}%
+                                </span>
                             </div>
-                            <span class="${profitBg} ${profitColor} px-3 py-1 rounded-full text-sm font-medium">
-                                ${profitSign}${result.profitRate.toFixed(2)}%
-                            </span>
+
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <p class="text-gray-500 text-xs">持有股数</p>
+                                    <p class="text-sm font-semibold text-dark mt-1">${stock.shares}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-xs">买入日期</p>
+                                    <p class="text-sm font-semibold text-dark mt-1">${stock.buyDate}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <p class="text-gray-500 text-sm">持有股数</p>
-                                <p class="text-lg font-semibold text-dark mt-1">${stock.shares}</p>
+                        <div class="border-t pt-3 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 text-sm">成本价</span>
+                                <span class="text-sm font-medium">¥${stock.costPrice.toFixed(2)}</span>
                             </div>
-                            <div>
-                                <p class="text-gray-500 text-sm">买入日期</p>
-                                <p class="text-lg font-semibold text-dark mt-1">${stock.buyDate}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 text-sm">当前价</span>
+                                <span class="text-sm font-medium">¥${stock.currentPrice.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between items-center border-t pt-2">
+                                <span class="text-gray-600 font-medium text-sm">盈亏</span>
+                                <span class="text-base font-bold ${profitColor}">${profitSign}¥${result.profit.toFixed(2)}</span>
+                            </div>
+
+                            <!-- 目标价格 -->
+                            <div class="border-t pt-2 space-y-1">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-gray-500">短期目标</span>
+                                    <span class="font-medium text-green-600">¥${stock.targetPrices.short.toFixed(2)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-gray-500">中期目标</span>
+                                    <span class="font-medium text-amber-600">¥${stock.targetPrices.medium.toFixed(2)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-gray-500">长期目标</span>
+                                    <span class="font-medium text-red-600">¥${stock.targetPrices.long.toFixed(2)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="border-t pt-4 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">成本价</span>
-                            <span class="text-lg font-medium">¥${stock.costPrice.toFixed(2)}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">当前价</span>
-                            <span class="text-lg font-medium">¥${stock.currentPrice.toFixed(2)}</span>
-                        </div>
-                        <div class="flex justify-between items-center border-t pt-3">
-                            <span class="text-gray-600 font-medium">盈亏</span>
-                            <span class="text-xl font-bold ${profitColor}">${profitSign}¥${result.profit.toFixed(2)}</span>
-                        </div>
+                    <!-- 右侧：价格走势图 -->
+                    <div class="flex items-center justify-center bg-gray-50 rounded-lg p-2">
+                        <div id="stock-chart-${index}" style="width: 100%; height: 240px;"></div>
                     </div>
                 </div>
             `;
             carousel.appendChild(card);
+
+            // 渲染该股票的图表
+            setTimeout(() => {
+                renderStockChart(`stock-chart-${index}`, stock);
+            }, 100);
 
             // 创建轮播指示点
             const dot = document.createElement('button');
@@ -1607,35 +1970,102 @@ function initStockRecord() {
             dotsContainer.appendChild(dot);
         });
 
+        // 绑定股票名称点击事件
+        setTimeout(() => {
+            document.querySelectorAll('.stock-name-clickable').forEach(nameElement => {
+                nameElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const stockIndex = parseInt(nameElement.dataset.stockIndex);
+                    const stock = stocksData.holdings[stockIndex];
+                    showInvestmentPopup(stock, nameElement);
+                });
+            });
+        }, 100);
+
         updateIndicator();
     }
 
+    // 初始化股票筛选器
+    function initStockFilter() {
+        const filterSelect = document.getElementById('stock-filter');
+        if (!filterSelect) return;
+
+        // 获取所有唯一的股票
+        const uniqueStocks = [...new Map(
+            stocksData.tradeHistory.map(trade => [trade.code, { code: trade.code, name: trade.name }])
+        ).values()];
+
+        // 添加股票选项
+        uniqueStocks.forEach(stock => {
+            const option = document.createElement('option');
+            option.value = stock.code;
+            option.textContent = `${stock.name} (${stock.code})`;
+            filterSelect.appendChild(option);
+        });
+
+        // 绑定筛选事件
+        filterSelect.addEventListener('change', () => {
+            const selectedCode = filterSelect.value;
+            renderTradeHistory(selectedCode);
+        });
+    }
+
     // 渲染交易历史
-    function renderTradeHistory() {
+    function renderTradeHistory(filterCode = 'all') {
         const tbody = document.getElementById('trade-history-body');
+        const emptyState = document.getElementById('empty-state');
+        const tradeCountElement = document.getElementById('trade-count');
+        const table = document.getElementById('trade-history');
+
         tbody.innerHTML = '';
 
         // 按日期倒序排列
-        const sortedHistory = [...stocksData.tradeHistory].sort((a, b) =>
+        let sortedHistory = [...stocksData.tradeHistory].sort((a, b) =>
             new Date(b.date) - new Date(a.date)
         );
 
-        sortedHistory.forEach(trade => {
-            const amount = trade.price * trade.shares;
-            const actionColor = trade.action === '买入' ? 'text-red-600' : 'text-green-600';
+        // 根据筛选条件过滤
+        if (filterCode !== 'all') {
+            sortedHistory = sortedHistory.filter(trade => trade.code === filterCode);
+        }
 
-            const row = document.createElement('tr');
-            row.className = 'border-b hover:bg-gray-50 transition-colors';
-            row.innerHTML = `
-                <td class="py-3 px-4 text-gray-700">${trade.date}</td>
-                <td class="py-3 px-4"><span class="${actionColor} font-medium">${trade.action}</span></td>
-                <td class="py-3 px-4 text-gray-700">${trade.name} (${trade.code})</td>
-                <td class="py-3 px-4 text-right text-gray-700">¥${trade.price.toFixed(2)}</td>
-                <td class="py-3 px-4 text-right text-gray-700">${trade.shares}</td>
-                <td class="py-3 px-4 text-right font-medium text-gray-900">¥${amount.toFixed(2)}</td>
-            `;
-            tbody.appendChild(row);
-        });
+        // 更新记录数量
+        if (tradeCountElement) {
+            tradeCountElement.textContent = sortedHistory.length;
+        }
+
+        // 显示空状态或表格
+        if (sortedHistory.length === 0) {
+            table.style.display = 'none';
+            emptyState.classList.remove('hidden');
+        } else {
+            table.style.display = 'table';
+            emptyState.classList.add('hidden');
+
+            // 渲染交易记录
+            sortedHistory.forEach((trade, index) => {
+                const amount = trade.price * trade.shares;
+                const actionColor = trade.action === '买入' ? 'text-red-600' : 'text-green-600';
+                const actionBg = trade.action === '买入' ? 'bg-red-50' : 'bg-green-50';
+
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50 transition-colors fade-in';
+                row.style.animationDelay = `${index * 0.05}s`;
+                row.innerHTML = `
+                    <td class="py-3 px-4 text-gray-700">${trade.date}</td>
+                    <td class="py-3 px-4">
+                        <span class="${actionColor} ${actionBg} font-medium px-2 py-1 rounded text-sm">
+                            ${trade.action}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-gray-700 font-medium">${trade.name} <span class="text-gray-400 text-sm">(${trade.code})</span></td>
+                    <td class="py-3 px-4 text-right text-gray-700">¥${trade.price.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-right text-gray-700">${trade.shares}</td>
+                    <td class="py-3 px-4 text-right font-medium text-gray-900">¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
     }
 
     // 更新轮播指示器
@@ -1661,6 +2091,12 @@ function initStockRecord() {
         carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
         updateIndicator();
         resetAutoPlay();
+
+        // 重新渲染当前股票的图表（解决切换后图表不显示的问题）
+        setTimeout(() => {
+            const stock = stocksData.holdings[currentIndex];
+            renderStockChart(`stock-chart-${currentIndex}`, stock);
+        }, 100);
     }
 
     // 上一张
@@ -1704,6 +2140,19 @@ function initStockRecord() {
             }
         });
         carouselContainer.addEventListener('mouseleave', startAutoPlay);
+
+        // 窗口大小改变时重新渲染所有股票图表
+        window.addEventListener('resize', () => {
+            stocksData.holdings.forEach((stock, index) => {
+                const chartDom = document.getElementById(`stock-chart-${index}`);
+                if (chartDom) {
+                    const chart = echarts.getInstanceByDom(chartDom);
+                    if (chart) {
+                        chart.resize();
+                    }
+                }
+            });
+        });
     }
 
     // 初始化
@@ -1713,6 +2162,7 @@ function initStockRecord() {
         renderFundFlowChart();
         renderTotalProfit();
         renderStockCards();
+        initStockFilter();
         renderTradeHistory();
         bindEvents();
         startAutoPlay();
