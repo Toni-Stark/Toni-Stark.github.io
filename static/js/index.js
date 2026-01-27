@@ -1262,12 +1262,473 @@ function renderCard() {
     initModalLogic(generateData);
 }
 
+// ===================== 股票投资记录管理 =====================
+// 股票数据配置 - 你可以在这里更新你的股票信息
+const stocksData = {
+    // 持仓股票列表
+    holdings: [
+        {
+            code: '000001',
+            name: '平安银行',
+            shares: 1000,           // 持有股数
+            costPrice: 12.50,       // 成本价
+            currentPrice: 15.80,    // 当前价格
+            buyDate: '2025-01-15'   // 买入日期
+        },
+        {
+            code: '600519',
+            name: '贵州茅台',
+            shares: 50,
+            costPrice: 1680.00,
+            currentPrice: 1850.00,
+            buyDate: '2024-12-20'
+        },
+        {
+            code: '000858',
+            name: '五粮液',
+            shares: 200,
+            costPrice: 165.00,
+            currentPrice: 172.50,
+            buyDate: '2025-01-10'
+        }
+    ],
+
+    // 交易历史记录
+    tradeHistory: [
+        {
+            date: '2025-01-15',
+            action: '买入',
+            code: '000001',
+            name: '平安银行',
+            price: 12.50,
+            shares: 1000
+        },
+        {
+            date: '2025-01-10',
+            action: '买入',
+            code: '000858',
+            name: '五粮液',
+            price: 165.00,
+            shares: 200
+        },
+        {
+            date: '2024-12-20',
+            action: '买入',
+            code: '600519',
+            name: '贵州茅台',
+            price: 1680.00,
+            shares: 50
+        }
+    ]
+};
+
+// 初始化股票投资记录板块
+function initStockRecord() {
+    let currentIndex = 0;
+    let autoPlayTimer = null;
+    const autoPlayInterval = 5000; // 5秒自动切换
+
+    // 渲染资金流向趋势图
+    function renderFundFlowChart() {
+        const chartDom = document.getElementById('fund-flow-chart');
+        if (!chartDom) return;
+
+        const myChart = echarts.init(chartDom);
+
+        // 模拟资金流向数据（实际使用时应该从真实数据计算）
+        const dates = [];
+        const investmentData = []; // 投入资金
+        const valueData = []; // 市值
+
+        // 生成过去30天的数据
+        const today = new Date();
+        let cumulativeInvestment = 0;
+
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            dates.push(`${date.getMonth() + 1}-${date.getDate()}`);
+
+            // 模拟投入数据（根据实际交易日期累加）
+            if (i < 25) cumulativeInvestment = 12500; // 平安银行
+            if (i < 20) cumulativeInvestment += 33000; // 五粮液
+            if (i < 10) cumulativeInvestment += 84000; // 茅台
+
+            investmentData.push(cumulativeInvestment);
+
+            // 模拟市值波动（在当前市值附近波动）
+            const { totalValue } = calculateTotalProfit();
+            const fluctuation = (Math.random() - 0.5) * 5000;
+            const value = i === 0 ? totalValue : cumulativeInvestment + fluctuation;
+            valueData.push(Math.max(0, value));
+        }
+
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                },
+                formatter: function(params) {
+                    let result = `${params[0].axisValue}<br/>`;
+                    params.forEach(param => {
+                        result += `${param.marker}${param.seriesName}: ¥${param.value.toFixed(2)}<br/>`;
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                data: ['投入', '市值'],
+                top: 10,
+                textStyle: {
+                    fontSize: 12
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: dates,
+                axisLabel: {
+                    fontSize: 11,
+                    rotate: 45
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '¥{value}',
+                    fontSize: 11
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#f0f0f0'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '投入',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 6,
+                    lineStyle: {
+                        color: '#3B82F6',
+                        width: 2
+                    },
+                    itemStyle: {
+                        color: '#3B82F6'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                                { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
+                            ]
+                        }
+                    },
+                    data: investmentData
+                },
+                {
+                    name: '市值',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 6,
+                    lineStyle: {
+                        color: '#10B981',
+                        width: 2
+                    },
+                    itemStyle: {
+                        color: '#10B981'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+                                { offset: 1, color: 'rgba(16, 185, 129, 0.05)' }
+                            ]
+                        }
+                    },
+                    data: valueData
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+
+        // 响应窗口大小变化
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    }
+
+    // 计算单只股票收益
+    function calculateStockProfit(stock) {
+        const investment = stock.shares * stock.costPrice;
+        const currentValue = stock.shares * stock.currentPrice;
+        const profit = currentValue - investment;
+        const profitRate = (profit / investment * 100);
+
+        return {
+            investment,
+            currentValue,
+            profit,
+            profitRate
+        };
+    }
+
+    // 计算总体收益
+    function calculateTotalProfit() {
+        let totalInvestment = 0;
+        let totalValue = 0;
+
+        stocksData.holdings.forEach(stock => {
+            const result = calculateStockProfit(stock);
+            totalInvestment += result.investment;
+            totalValue += result.currentValue;
+        });
+
+        const totalProfit = totalValue - totalInvestment;
+        const totalProfitRate = totalInvestment > 0 ? (totalProfit / totalInvestment * 100) : 0;
+
+        return {
+            totalInvestment,
+            totalValue,
+            totalProfit,
+            totalProfitRate
+        };
+    }
+
+    // 渲染总体收益统计
+    function renderTotalProfit() {
+        const { totalInvestment, totalValue, totalProfit, totalProfitRate } = calculateTotalProfit();
+
+        document.getElementById('total-investment').textContent = `¥${totalInvestment.toFixed(2)}`;
+        document.getElementById('total-value').textContent = `¥${totalValue.toFixed(2)}`;
+
+        const profitElement = document.getElementById('total-profit');
+        const profitRateElement = document.getElementById('total-profit-rate');
+
+        const profitColor = totalProfit >= 0 ? 'text-red-600' : 'text-green-600';
+        const profitSign = totalProfit >= 0 ? '+' : '';
+
+        profitElement.textContent = `${profitSign}¥${totalProfit.toFixed(2)}`;
+        profitElement.className = `text-2xl font-bold ${profitColor}`;
+
+        profitRateElement.textContent = `${profitSign}${totalProfitRate.toFixed(2)}%`;
+        profitRateElement.className = `text-xl font-bold ${profitColor}`;
+    }
+
+    // 渲染股票卡片
+    function renderStockCards() {
+        const carousel = document.getElementById('stock-carousel');
+        const dotsContainer = document.getElementById('stock-dots');
+
+        carousel.innerHTML = '';
+        dotsContainer.innerHTML = '';
+
+        stocksData.holdings.forEach((stock, index) => {
+            const result = calculateStockProfit(stock);
+            const profitColor = result.profit >= 0 ? 'text-red-600' : 'text-green-600';
+            const profitBg = result.profit >= 0 ? 'bg-red-50' : 'bg-green-50';
+            const profitSign = result.profit >= 0 ? '+' : '';
+
+            // 创建股票卡片
+            const card = document.createElement('div');
+            card.className = 'w-full flex-shrink-0 px-2';
+            card.innerHTML = `
+                <div class="h-full flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="text-2xl font-bold text-dark">${stock.name}</h4>
+                                <p class="text-gray-500 text-sm mt-1">${stock.code}</p>
+                            </div>
+                            <span class="${profitBg} ${profitColor} px-3 py-1 rounded-full text-sm font-medium">
+                                ${profitSign}${result.profitRate.toFixed(2)}%
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <p class="text-gray-500 text-sm">持有股数</p>
+                                <p class="text-lg font-semibold text-dark mt-1">${stock.shares}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">买入日期</p>
+                                <p class="text-lg font-semibold text-dark mt-1">${stock.buyDate}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">成本价</span>
+                            <span class="text-lg font-medium">¥${stock.costPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">当前价</span>
+                            <span class="text-lg font-medium">¥${stock.currentPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t pt-3">
+                            <span class="text-gray-600 font-medium">盈亏</span>
+                            <span class="text-xl font-bold ${profitColor}">${profitSign}¥${result.profit.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            carousel.appendChild(card);
+
+            // 创建轮播指示点
+            const dot = document.createElement('button');
+            dot.className = `w-2 h-2 rounded-full transition-all ${index === 0 ? 'bg-primary w-6' : 'bg-gray-300'}`;
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+
+        updateIndicator();
+    }
+
+    // 渲染交易历史
+    function renderTradeHistory() {
+        const tbody = document.getElementById('trade-history-body');
+        tbody.innerHTML = '';
+
+        // 按日期倒序排列
+        const sortedHistory = [...stocksData.tradeHistory].sort((a, b) =>
+            new Date(b.date) - new Date(a.date)
+        );
+
+        sortedHistory.forEach(trade => {
+            const amount = trade.price * trade.shares;
+            const actionColor = trade.action === '买入' ? 'text-red-600' : 'text-green-600';
+
+            const row = document.createElement('tr');
+            row.className = 'border-b hover:bg-gray-50 transition-colors';
+            row.innerHTML = `
+                <td class="py-3 px-4 text-gray-700">${trade.date}</td>
+                <td class="py-3 px-4"><span class="${actionColor} font-medium">${trade.action}</span></td>
+                <td class="py-3 px-4 text-gray-700">${trade.name} (${trade.code})</td>
+                <td class="py-3 px-4 text-right text-gray-700">¥${trade.price.toFixed(2)}</td>
+                <td class="py-3 px-4 text-right text-gray-700">${trade.shares}</td>
+                <td class="py-3 px-4 text-right font-medium text-gray-900">¥${amount.toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // 更新轮播指示器
+    function updateIndicator() {
+        const total = stocksData.holdings.length;
+        document.getElementById('stock-indicator').textContent = `${currentIndex + 1}/${total}`;
+
+        // 更新轮播点
+        const dots = document.querySelectorAll('#stock-dots button');
+        dots.forEach((dot, index) => {
+            if (index === currentIndex) {
+                dot.className = 'w-6 h-2 rounded-full bg-primary transition-all';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-gray-300 transition-all';
+            }
+        });
+    }
+
+    // 切换到指定幻灯片
+    function goToSlide(index) {
+        const carousel = document.getElementById('stock-carousel');
+        currentIndex = index;
+        carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+        updateIndicator();
+        resetAutoPlay();
+    }
+
+    // 上一张
+    function prevSlide() {
+        const total = stocksData.holdings.length;
+        currentIndex = (currentIndex - 1 + total) % total;
+        goToSlide(currentIndex);
+    }
+
+    // 下一张
+    function nextSlide() {
+        const total = stocksData.holdings.length;
+        currentIndex = (currentIndex + 1) % total;
+        goToSlide(currentIndex);
+    }
+
+    // 自动播放
+    function startAutoPlay() {
+        if (stocksData.holdings.length <= 1) return;
+        autoPlayTimer = setInterval(nextSlide, autoPlayInterval);
+    }
+
+    // 重置自动播放
+    function resetAutoPlay() {
+        if (autoPlayTimer) {
+            clearInterval(autoPlayTimer);
+        }
+        startAutoPlay();
+    }
+
+    // 绑定事件
+    function bindEvents() {
+        document.getElementById('stock-prev').addEventListener('click', prevSlide);
+        document.getElementById('stock-next').addEventListener('click', nextSlide);
+
+        // 鼠标悬停时暂停自动播放
+        const carouselContainer = document.querySelector('#stock-carousel').parentElement;
+        carouselContainer.addEventListener('mouseenter', () => {
+            if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+            }
+        });
+        carouselContainer.addEventListener('mouseleave', startAutoPlay);
+    }
+
+    // 初始化
+    function init() {
+        if (!document.getElementById('stock-carousel')) return;
+
+        renderFundFlowChart();
+        renderTotalProfit();
+        renderStockCards();
+        renderTradeHistory();
+        bindEvents();
+        startAutoPlay();
+    }
+
+    init();
+}
+
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', async function() {
         await renderSwimmingModal();
         await renderSwimmingList()
         await initChinaMap();
         await renderCard()
+        initStockRecord(); // 初始化股票投资记录
+
         // 键盘控制（ESC关闭，左右箭头切换）
         document.addEventListener('keydown', (e) => {
             const modal = document.getElementById('mediaModal');

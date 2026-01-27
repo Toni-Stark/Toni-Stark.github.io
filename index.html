@@ -234,6 +234,7 @@
         <!-- 桌面导航 -->
         <nav class="hidden md:flex items-center space-x-8">
             <a href="#hobbies" class="text-gray-700 hover:text-primary transition-colors font-medium">爱好记录</a>
+            <a href="#stocks" class="text-gray-700 hover:text-primary transition-colors font-medium">投资记录</a>
             <a href="#travel" class="text-gray-700 hover:text-primary transition-colors font-medium">旅游分享</a>
             <a href="https://github.com" target="_blank" class="flex items-center space-x-1 text-gray-700 hover:text-primary transition-colors">
                 <i class="fa fa-github"></i>
@@ -255,11 +256,14 @@
             记录生活中的<span class="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">美好瞬间</span>
         </h1>
         <p class="text-gray-600 text-[clamp(1rem,2vw,1.25rem)] max-w-2xl mx-auto mb-10">
-            分享游泳等爱好的进步历程，记录旅途中的文化探索与美食体验
+            分享游泳等爱好的进步历程，追踪投资收益表现，记录旅途中的文化探索与美食体验
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#hobbies" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                 查看爱好记录
+            </a>
+            <a href="#stocks" class="bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-8 rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                投资记录
             </a>
             <a href="#travel" class="bg-white hover:bg-gray-50 text-primary border border-primary font-medium py-3 px-8 rounded-full transition-all shadow-md hover:shadow-lg">
                 探索旅游分享
@@ -301,8 +305,119 @@
     </div>
 </section>
 
+<!-- 股票投资记录板块 -->
+<section id="stocks" class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-dark mb-4">股票投资记录</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">记录投资历程，追踪收益表现</p>
+        </div>
+
+        <!-- 资金流向统计图 -->
+        <div class="mb-8">
+            <div class="bg-white rounded-2xl p-6 shadow-md card-hover">
+                <h3 class="text-lg font-semibold mb-6 flex items-center">
+                    <i class="fa fa-area-chart text-accent mr-2"></i>
+                    资金流向趋势
+                </h3>
+                <div id="fund-flow-chart" class="w-full" style="height: 400px;"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 总体收益统计 -->
+            <div class="bg-white rounded-2xl p-6 shadow-md card-hover">
+                <h3 class="text-lg font-semibold mb-6 flex items-center">
+                    <i class="fa fa-line-chart text-primary mr-2"></i>
+                    总体收益
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">总投入</span>
+                        <span class="text-xl font-bold text-dark" id="total-investment">¥0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">当前市值</span>
+                        <span class="text-xl font-bold text-dark" id="total-value">¥0</span>
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">总收益</span>
+                            <span class="text-2xl font-bold" id="total-profit">¥0</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-gray-600">收益率</span>
+                            <span class="text-xl font-bold" id="total-profit-rate">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 股票轮播展示 -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl p-6 shadow-md card-hover relative">
+                    <h3 class="text-lg font-semibold mb-6 flex items-center justify-between">
+                        <span>
+                            <i class="fa fa-bar-chart text-secondary mr-2"></i>
+                            持仓股票
+                        </span>
+                        <div class="flex items-center space-x-2">
+                            <button id="stock-prev" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center">
+                                <i class="fa fa-chevron-left text-gray-600"></i>
+                            </button>
+                            <span class="text-sm text-gray-500" id="stock-indicator">1/1</span>
+                            <button id="stock-next" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center">
+                                <i class="fa fa-chevron-right text-gray-600"></i>
+                            </button>
+                        </div>
+                    </h3>
+
+                    <!-- 轮播容器 -->
+                    <div class="relative h-64 overflow-hidden">
+                        <div id="stock-carousel" class="flex transition-transform duration-500 ease-in-out h-full">
+                            <!-- 股票卡片将通过JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 自动播放指示器 -->
+                    <div class="flex justify-center mt-4 space-x-2" id="stock-dots">
+                        <!-- 轮播点将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="mt-12">
+            <div class="bg-white rounded-2xl p-6 shadow-md">
+                <h3 class="text-lg font-semibold mb-6 flex items-center">
+                    <i class="fa fa-history text-accent mr-2"></i>
+                    交易历史
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="trade-history">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-3 px-4 text-gray-600 font-medium">日期</th>
+                                <th class="text-left py-3 px-4 text-gray-600 font-medium">操作</th>
+                                <th class="text-left py-3 px-4 text-gray-600 font-medium">股票</th>
+                                <th class="text-right py-3 px-4 text-gray-600 font-medium">价格</th>
+                                <th class="text-right py-3 px-4 text-gray-600 font-medium">数量</th>
+                                <th class="text-right py-3 px-4 text-gray-600 font-medium">金额</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trade-history-body">
+                            <!-- 交易记录将通过JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- 旅游分享板块 -->
-<section id="travel" class="py-20 bg-gray-50">
+<section id="travel" class="py-20 bg-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-16">
             <h2 class="text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-dark mb-4">旅游分享</h2>
@@ -410,6 +525,7 @@
                 <h4 class="text-lg font-semibold mb-4">快速链接</h4>
                 <ul class="space-y-2">
                     <li><a href="#hobbies" class="text-gray-400 hover:text-white transition-colors">爱好记录</a></li>
+                    <li><a href="#stocks" class="text-gray-400 hover:text-white transition-colors">投资记录</a></li>
                     <li><a href="#travel" class="text-gray-400 hover:text-white transition-colors">旅游分享</a></li>
                     <li><a href="https://github.com" target="_blank" class="text-gray-400 hover:text-white transition-colors">GitHub 主页</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我</a></li>
